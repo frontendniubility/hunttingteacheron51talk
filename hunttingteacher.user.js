@@ -1,10 +1,11 @@
 // ==UserScript==
 // @name         51Talk.辅助选老师-有效经验值|好评率|年龄|Top 5
-// @version      0.1.1
+// @version      0.1.3
 // @namespace    tsharp.js.51talk_sort
 // @description  有效经验值=所有标签数量相加后除以5；好评率=好评数/总评论数；年龄根据你的喜好选择。
 // @author       jimbo
 // @license      GPLv3
+// @supportURL   https://github.com/niubilityfrontend/huttingtecaheron51talk
 // @match        https://www.51talk.com/ReserveNew/index*
 // @match        http://www.51talk.com/ReserveNew/index*
 // @icon         https://avatars3.githubusercontent.com/u/25388328
