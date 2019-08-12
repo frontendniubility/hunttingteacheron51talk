@@ -73,7 +73,7 @@
                                 that[0].style.position = "absolute";
                             }
                         } else if ((dir == "top" && (document.documentElement.scrollTop || document.body.scrollTop) < oldHeight) || (dir == "bottom" && (document.documentElement.scrollTop || document.body.scrollTop) > oldHeight)) { //结束
-                            that[0].style.position = "static";
+                            that[0].style.position = "absolute";
                             p.replaceChild(that[0], r);
                             r = null;
                             oldHeight = false;
@@ -185,7 +185,7 @@
                 },
                 error: function (data) { console.log("xhr error when getting teacher " + JSON.stringify(item) + ",error msg:" + JSON.stringify(data)); }
             }).always(function () {
-                while ((new Date()).getTime() - start < 800) {
+                while ((new Date()).getTime() - start < 500) {
                     continue;
                 }
                 next();
