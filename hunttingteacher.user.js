@@ -1,8 +1,8 @@
 // ==UserScript==
-// @name         51Talk.¸¨ÖúÑ¡ÀÏÊ¦-ÓĞĞ§¾­ÑéÖµ|ºÃÆÀÂÊ|ÄêÁä|Top 5
+// @name         HunttingTeacher
 // @version      0.1.4
 // @namespace    https://github.com/niubilityfrontend
-// @description  ÓĞĞ§¾­ÑéÖµ=ËùÓĞ±êÇ©ÊıÁ¿Ïà¼Óºó³ıÒÔ5£»ºÃÆÀÂÊ=ºÃÆÀÊı/×ÜÆÀÂÛÊı£»ÄêÁä¸ù¾İÄãµÄÏ²ºÃÑ¡Ôñ¡£
+// @description  51Talk.è¾…åŠ©é€‰è€å¸ˆ-æœ‰æ•ˆç»éªŒå€¼|å¥½è¯„ç‡|å¹´é¾„|Top 5ï¼›æœ‰æ•ˆç»éªŒå€¼=æ‰€æœ‰æ ‡ç­¾æ•°é‡ç›¸åŠ åé™¤ä»¥5ï¼›å¥½è¯„ç‡=å¥½è¯„æ•°/æ€»è¯„è®ºæ•°ï¼›å¹´é¾„æ ¹æ®ä½ çš„å–œå¥½é€‰æ‹©ã€‚
 // @author       jimbo
 // @license      GPLv3
 // @supportURL   https://github.com/niubilityfrontend/huttingtecaheron51talk
@@ -30,11 +30,11 @@
                 var that = $(this),
                     oldHeight = false,
                     p, r, l = that.offset().left;
-                dir = dir == "bottom" ? dir : "top"; //Ä¬ÈÏ¹ö¶¯·½ÏòÏòÏÂ
-                if (window.XMLHttpRequest) { //·Çie6ÓÃfixed
+                dir = dir == "bottom" ? dir : "top"; //é»˜è®¤æ»šåŠ¨æ–¹å‘å‘ä¸‹
+                if (window.XMLHttpRequest) { //éie6ç”¨fixed
 
 
-                    function getHeight() { //>=0±íÊ¾ÉÏÃæµÄ¹ö¶¯¸ß¶È´óÓÚµÈÓÚÄ¿±ê¸ß¶È
+                    function getHeight() { //>=0è¡¨ç¤ºä¸Šé¢çš„æ»šåŠ¨é«˜åº¦å¤§äºç­‰äºç›®æ ‡é«˜åº¦
                         return (document.documentElement.scrollTop || document.body.scrollTop) + height - that.offset().top;
                     }
                     $(window).scroll(function () {
@@ -64,7 +64,7 @@
                     });
                 } else { //for ie6
                     $(window).scroll(function () {
-                        if (oldHeight === false) { //»Ö¸´Ç°Ö»Ö´ĞĞÒ»´Î£¬¼õÉÙreflow
+                        if (oldHeight === false) { //æ¢å¤å‰åªæ‰§è¡Œä¸€æ¬¡ï¼Œå‡å°‘reflow
                             if ((getHeight() >= 0 && dir == "top") || (getHeight() <= 0 && dir == "bottom")) {
                                 oldHeight = that.offset().top - height;
                                 r = document.createElement("span");
@@ -73,12 +73,12 @@
                                 document.body.appendChild(that[0]);
                                 that[0].style.position = "absolute";
                             }
-                        } else if ((dir == "top" && (document.documentElement.scrollTop || document.body.scrollTop) < oldHeight) || (dir == "bottom" && (document.documentElement.scrollTop || document.body.scrollTop) > oldHeight)) { //½áÊø
+                        } else if ((dir == "top" && (document.documentElement.scrollTop || document.body.scrollTop) < oldHeight) || (dir == "bottom" && (document.documentElement.scrollTop || document.body.scrollTop) > oldHeight)) { //ç»“æŸ
                             that[0].style.position = "absolute";
                             p.replaceChild(that[0], r);
                             r = null;
                             oldHeight = false;
-                        } else { //¹ö¶¯
+                        } else { //æ»šåŠ¨
                             that.css({
                                 left: l,
                                 top: height + document.documentElement.scrollTop
@@ -101,7 +101,7 @@
             continue;
         }
     }
-    //É¾³ıÊı×éÖĞµÄ¿ÕÔªËØ
+    //åˆ é™¤æ•°ç»„ä¸­çš„ç©ºå…ƒç´ 
     Array.prototype.clean = function (deleteValue = "") {
         for (var i = 0; i < this.length; i++) {
             if (this[i] == deleteValue) {
@@ -116,7 +116,7 @@
         return b - a;
     }
     /**
-     * Ìá½»ÔËËãº¯Êıµ½ document µÄ fx ¶ÓÁĞ
+     * æäº¤è¿ç®—å‡½æ•°åˆ° document çš„ fx é˜Ÿåˆ—
      */
     var submit = function (fun) {
         //debugger;
@@ -157,7 +157,7 @@
                 next();
                 return;
             }
-            // ajax ÇëÇóÒ»¶¨Òª°üº¬ÔÚÒ»¸öº¯ÊıÖĞ
+            // ajax è¯·æ±‚ä¸€å®šè¦åŒ…å«åœ¨ä¸€ä¸ªå‡½æ•°ä¸­
             var start = (new Date()).getTime();
             $.ajax({
                 url: window.location.protocol + '//www.51talk.com/TeacherNew/teacherComment?tid=' + tid + '&type=bad&has_msg=1',
@@ -218,7 +218,7 @@
             }
             if ((tinfo.thumbupRate >= rate1 && tinfo.thumbupRate <= rate2) && tinfo.label >= l1 && tinfo.label <= l2 && tinfo.age >= age1 && tinfo.age <= age2) {
 
-                if (node.is(':hidden')) {¡¡¡¡//Èç¹ûnodeÊÇÒş²ØµÄÔòÏÔÊ¾nodeÔªËØ£¬·ñÔòÒş²Ø
+                if (node.is(':hidden')) {ã€€ã€€//å¦‚æœnodeæ˜¯éšè—çš„åˆ™æ˜¾ç¤ºnodeå…ƒç´ ï¼Œå¦åˆ™éšè—
                     node.css('color', 'red').show();
                 } else {
                     //nothing todo
@@ -238,8 +238,8 @@
         try {
             var config = GM_getValue('filterconfig', { l1: minlabel - 1, l2: maxlabel, rate1: 0, rate2: 100, age1: 0, age2: 110 });
 
-            $('body').append("<div id='filterdialog' title='Teacher Filter'>µ±Ç°¿ÉÑ¡½ÌÊ¦<span id='tcount'>28</span>Î» &nbsp;&nbsp;&nbsp;[<a href='https://github.com/niubilityfrontend/huttingtecaheron51talk/issues/new?assignees=&labels=&template=feature_request.md&title=' target='_blank'>½¨ÒéĞÂ¹¦ÄÜ</a>]<br />ÓĞĞ§¾­ÑéÖµ <span id='_tLabelCount' /><br /><div id='tlabelslider'></div>ºÃÆÀÂÊ <span id='_thumbupRate'/><br /><div id='thumbupRateslider'></div>ÄêÁä <span id='_tAge' /><br /><div id='tAgeSlider'></div></div>");
-            $('body').append("<div id='wwwww' style='display:none;'></div>"); //ÕâÊÇÒ»¸öÆæ¹ÖµÄBUG on jqueryui. Èç¹û²»¶à¶îÍâÌí¼ÓÒ»¸ö£¬ÔòdialogÎŞ·¨µ¯³ö¡£
+            $('body').append("<div id='filterdialog' title='Teacher Filter'>å½“å‰å¯é€‰æ•™å¸ˆ<span id='tcount'>28</span>ä½ &nbsp;&nbsp;&nbsp;[<a href='https://github.com/niubilityfrontend/huttingtecaheron51talk/issues/new?assignees=&labels=&template=feature_request.md&title=' target='_blank'>å»ºè®®æ–°åŠŸèƒ½</a>]<br />æœ‰æ•ˆç»éªŒå€¼ <span id='_tLabelCount' /><br /><div id='tlabelslider'></div>å¥½è¯„ç‡ <span id='_thumbupRate'/><br /><div id='thumbupRateslider'></div>å¹´é¾„ <span id='_tAge' /><br /><div id='tAgeSlider'></div></div>");
+            $('body').append("<div id='wwwww' style='display:none;'></div>"); //è¿™æ˜¯ä¸€ä¸ªå¥‡æ€ªçš„BUG on jqueryui. å¦‚æœä¸å¤šé¢å¤–æ·»åŠ ä¸€ä¸ªï¼Œåˆ™dialogæ— æ³•å¼¹å‡ºã€‚
             $('#filterdialog').dialog();
             console.log('shown dialog.');
             $("#tlabelslider").slider({
