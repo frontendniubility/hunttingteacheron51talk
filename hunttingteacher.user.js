@@ -1,8 +1,8 @@
 // ==UserScript==
-// @name         51Talk.è¾…åŠ©é€‰è€å¸ˆ-æœ‰æ•ˆç»éªŒå€¼|å¥½è¯„ç‡|å¹´é¾„|Top 5
-// @version      0.1.3
-// @namespace    tsharp.js.51talk_sort
-// @description  æœ‰æ•ˆç»éªŒå€¼=æ‰€æœ‰æ ‡ç­¾æ•°é‡ç›¸åŠ åé™¤ä»¥5ï¼›å¥½è¯„ç‡=å¥½è¯„æ•°/æ€»è¯„è®ºæ•°ï¼›å¹´é¾„æ ¹æ®ä½ çš„å–œå¥½é€‰æ‹©ã€‚
+// @name         51Talk.¸¨ÖúÑ¡ÀÏÊ¦-ÓĞĞ§¾­ÑéÖµ|ºÃÆÀÂÊ|ÄêÁä|Top 5
+// @version      0.1.4
+// @namespace    https://github.com/niubilityfrontend
+// @description  ÓĞĞ§¾­ÑéÖµ=ËùÓĞ±êÇ©ÊıÁ¿Ïà¼Óºó³ıÒÔ5£»ºÃÆÀÂÊ=ºÃÆÀÊı/×ÜÆÀÂÛÊı£»ÄêÁä¸ù¾İÄãµÄÏ²ºÃÑ¡Ôñ¡£
 // @author       jimbo
 // @license      GPLv3
 // @supportURL   https://github.com/niubilityfrontend/huttingtecaheron51talk
@@ -17,11 +17,11 @@
 // ==/UserScript==
 (function () {
     'use strict';
-    ;(function($) {
-        jQuery.fn.scrollFix = function(height, dir) {
+    ; (function ($) {
+        jQuery.fn.scrollFix = function (height, dir) {
             height = height || 0;
             height = height == "top" ? 0 : height;
-            return this.each(function() {
+            return this.each(function () {
                 if (height == "bottom") {
                     height = document.documentElement.clientHeight - this.scrollHeight;
                 } else if (height < 0) {
@@ -30,14 +30,14 @@
                 var that = $(this),
                     oldHeight = false,
                     p, r, l = that.offset().left;
-                dir = dir == "bottom" ? dir : "top"; //é»˜è®¤æ»šåŠ¨æ–¹å‘å‘ä¸‹
-                if (window.XMLHttpRequest) { //éie6ç”¨fixed
+                dir = dir == "bottom" ? dir : "top"; //Ä¬ÈÏ¹ö¶¯·½ÏòÏòÏÂ
+                if (window.XMLHttpRequest) { //·Çie6ÓÃfixed
 
 
-                    function getHeight() { //>=0è¡¨ç¤ºä¸Šé¢çš„æ»šåŠ¨é«˜åº¦å¤§äºç­‰äºç›®æ ‡é«˜åº¦
+                    function getHeight() { //>=0±íÊ¾ÉÏÃæµÄ¹ö¶¯¸ß¶È´óÓÚµÈÓÚÄ¿±ê¸ß¶È
                         return (document.documentElement.scrollTop || document.body.scrollTop) + height - that.offset().top;
                     }
-                    $(window).scroll(function() {
+                    $(window).scroll(function () {
                         $('#filterdialog').dialog("open");
                         if (oldHeight === false) {
                             if ((getHeight() >= 0 && dir == "top") || (getHeight() <= 0 && dir == "bottom")) {
@@ -63,8 +63,8 @@
                         }
                     });
                 } else { //for ie6
-                    $(window).scroll(function() {
-                        if (oldHeight === false) { //æ¢å¤å‰åªæ‰§è¡Œä¸€æ¬¡ï¼Œå‡å°‘reflow
+                    $(window).scroll(function () {
+                        if (oldHeight === false) { //»Ö¸´Ç°Ö»Ö´ĞĞÒ»´Î£¬¼õÉÙreflow
                             if ((getHeight() >= 0 && dir == "top") || (getHeight() <= 0 && dir == "bottom")) {
                                 oldHeight = that.offset().top - height;
                                 r = document.createElement("span");
@@ -73,12 +73,12 @@
                                 document.body.appendChild(that[0]);
                                 that[0].style.position = "absolute";
                             }
-                        } else if ((dir == "top" && (document.documentElement.scrollTop || document.body.scrollTop) < oldHeight) || (dir == "bottom" && (document.documentElement.scrollTop || document.body.scrollTop) > oldHeight)) { //ç»“æŸ
+                        } else if ((dir == "top" && (document.documentElement.scrollTop || document.body.scrollTop) < oldHeight) || (dir == "bottom" && (document.documentElement.scrollTop || document.body.scrollTop) > oldHeight)) { //½áÊø
                             that[0].style.position = "absolute";
                             p.replaceChild(that[0], r);
                             r = null;
                             oldHeight = false;
-                        } else { //æ»šåŠ¨
+                        } else { //¹ö¶¯
                             that.css({
                                 left: l,
                                 top: height + document.documentElement.scrollTop
@@ -101,7 +101,7 @@
             continue;
         }
     }
-    //åˆ é™¤æ•°ç»„ä¸­çš„ç©ºå…ƒç´ 
+    //É¾³ıÊı×éÖĞµÄ¿ÕÔªËØ
     Array.prototype.clean = function (deleteValue = "") {
         for (var i = 0; i < this.length; i++) {
             if (this[i] == deleteValue) {
@@ -116,7 +116,7 @@
         return b - a;
     }
     /**
-     * æäº¤è¿ç®—å‡½æ•°åˆ° document çš„ fx é˜Ÿåˆ—
+     * Ìá½»ÔËËãº¯Êıµ½ document µÄ fx ¶ÓÁĞ
      */
     var submit = function (fun) {
         //debugger;
@@ -126,17 +126,17 @@
         }
         $.dequeue(document);
     };
-    let maxlabel=0, minlabel=9999999;
-    function updateTeacherinfoToUI(jqel, tinfo){
-        maxlabel=(tinfo.label>maxlabel)?tinfo.label:maxlabel;
-        minlabel=(tinfo.label<minlabel)?tinfo.label:minlabel;
-        jqel.data("teacherinfo",tinfo);
+    let maxlabel = 0, minlabel = 9999999;
+    function updateTeacherinfoToUI(jqel, tinfo) {
+        maxlabel = (tinfo.label > maxlabel) ? tinfo.label : maxlabel;
+        minlabel = (tinfo.label < minlabel) ? tinfo.label : minlabel;
+        jqel.data("teacherinfo", tinfo);
         jqel.find(".teacher-name")
-            .text( jqel.find(".teacher-name").text()+"[" + tinfo.label + "]")
-            .text( jqel.find(".teacher-name").text()+"[" + tinfo.thumbupRate + "%]");
-        jqel.attr('thumbup',tinfo.thumbup)
+            .text(jqel.find(".teacher-name").text() + "[" + tinfo.label + "]")
+            .text(jqel.find(".teacher-name").text() + "[" + tinfo.thumbupRate + "%]");
+        jqel.attr('thumbup', tinfo.thumbup)
             .attr('thumbdown', tinfo.thumbdown)
-            .attr('thumbupRate',tinfo. thumbupRate)
+            .attr('thumbupRate', tinfo.thumbupRate)
             .attr('age', tinfo.age)
             .attr('label', tinfo.label);
     }
@@ -148,37 +148,39 @@
     $(".item").each(function (index, el) {
 
         submit(function (next) {
-            let jqel=$(el);
-            let tid=jqel.find(".teacher-details-link a").attr('href').replace("https://www.51talk.com/TeacherNew/info/", "").replace('http://www.51talk.com/TeacherNew/info/', '');
-            var tinfokey='tinfo-'+ tid;
-            var tinfo=GM_getValue(tinfokey);
-            if(tinfo){
+            let jqel = $(el);
+            let tid = jqel.find(".teacher-details-link a").attr('href').replace("https://www.51talk.com/TeacherNew/info/", "").replace('http://www.51talk.com/TeacherNew/info/', '');
+            var tinfokey = 'tinfo-' + tid;
+            var tinfo = GM_getValue(tinfokey);
+            if (tinfo) {
                 updateTeacherinfoToUI(jqel, tinfo);
                 next();
                 return;
             }
-            // ajax è¯·æ±‚ä¸€å®šè¦åŒ…å«åœ¨ä¸€ä¸ªå‡½æ•°ä¸­
+            // ajax ÇëÇóÒ»¶¨Òª°üº¬ÔÚÒ»¸öº¯ÊıÖĞ
             var start = (new Date()).getTime();
             $.ajax({
                 url: window.location.protocol + '//www.51talk.com/TeacherNew/teacherComment?tid=' + tid + '&type=bad&has_msg=1',
                 type: 'GET',
                 dateType: 'html',
                 success: function (r) {
-                    var jqel=$($(".item")[index]);
+                    var jqel = $($(".item")[index]);
                     if ($(".evaluate-content-left span", r) && $(".evaluate-content-left span", r).length >= 3) {
                         var thumbup = Number($(".evaluate-content-left span:eq(1)", r).text().match(num).clean("")[0]);
                         var thumbdown = Number($(".evaluate-content-left span:eq(2)", r).text().match(num).clean("")[0]);
                         var thumbupRate = ((thumbup + 0.00001) / (thumbdown + thumbup)).toFixed(2) * 100;
-                        var age =jqel.find(".teacher-age").text().match(num).clean("");
-                        var label=(function(){let j_len = jqel.find(".label").text().match(num).clean("").length;let l = 0;
-                                              for (let j = 0; j < j_len; j++) {
-                                                  l += Number(jqel.find(".label").text().match(num).clean("")[j]);
-                                              }
-                                              l = Math.ceil(l / 5);
-                                              return l;})();;
-                        var tinfo={'thumbup':thumbup,'thumbdown':thumbdown,'thumbupRate':thumbupRate,'age':age,'label':label};
+                        var age = jqel.find(".teacher-age").text().match(num).clean("");
+                        var label = (function () {
+                            let j_len = jqel.find(".label").text().match(num).clean("").length; let l = 0;
+                            for (let j = 0; j < j_len; j++) {
+                                l += Number(jqel.find(".label").text().match(num).clean("")[j]);
+                            }
+                            l = Math.ceil(l / 5);
+                            return l;
+                        })();;
+                        var tinfo = { 'thumbup': thumbup, 'thumbdown': thumbdown, 'thumbupRate': thumbupRate, 'age': age, 'label': label };
 
-                        GM_setValue(tinfokey,tinfo);
+                        GM_setValue(tinfokey, tinfo);
                         updateTeacherinfoToUI(jqel, tinfo);
                     } else {
                         console.log('Teacher s detail info getting error:' + JSON.stringify(item) + ",error info:" + r);
@@ -204,21 +206,21 @@
         var age1 = $("#tAgeSlider").slider('values', 0);
         var age2 = $("#tAgeSlider").slider('values', 1);
 
-        GM_setValue('filterconfig',{l1,l2,rate1,rate2,age1,age2});
+        GM_setValue('filterconfig', { l1, l2, rate1, rate2, age1, age2 });
 
-        let tcount=0;
+        let tcount = 0;
         $.each($('.item'), function (i, item) {
-            var node =$(item);
-            var tinfo=node.data("teacherinfo");
+            var node = $(item);
+            var tinfo = node.data("teacherinfo");
 
-            if(!tinfo){
+            if (!tinfo) {
                 return;
             }
             if ((tinfo.thumbupRate >= rate1 && tinfo.thumbupRate <= rate2) && tinfo.label >= l1 && tinfo.label <= l2 && tinfo.age >= age1 && tinfo.age <= age2) {
 
-                if(node.is(':hidden')){ã€€ã€€//å¦‚æœnodeæ˜¯éšè—çš„åˆ™æ˜¾ç¤ºnodeå…ƒç´ ï¼Œå¦åˆ™éšè—
-                    node.css('color','red').show();
-                }else{
+                if (node.is(':hidden')) {¡¡¡¡//Èç¹ûnodeÊÇÒş²ØµÄÔòÏÔÊ¾nodeÔªËØ£¬·ñÔòÒş²Ø
+                    node.css('color', 'red').show();
+                } else {
                     //nothing todo
                     //node.hide();
                 }
@@ -226,7 +228,7 @@
             } else {
                 //console.log('teacher info'+JSON.stringify(tinfo))
                 //console.log({l1,l2,rate1,rate2,age1,age2});
-                node.css('color','white').hide();
+                node.css('color', 'white').hide();
             }
         });
         $('#tcount').text(tcount);
@@ -234,19 +236,19 @@
 
     submit(function (next) {
         try {
-            var config=GM_getValue('filterconfig',{l1:minlabel-1,l2:maxlabel,rate1:0,rate2:100,age1:0,age2:110});
+            var config = GM_getValue('filterconfig', { l1: minlabel - 1, l2: maxlabel, rate1: 0, rate2: 100, age1: 0, age2: 110 });
 
-            $('body').append("<div id='filterdialog' title='Teacher Filter'>å½“å‰å¯é€‰æ•™å¸ˆ<span id='tcount'>28</span>ä½ <a href='https://github.com/niubilityfrontend/huttingtecaheron51talk/issues/new?assignees=&labels=&template=feature_request.md&title='>æä¸ªå»ºè®®</a><br />æœ‰æ•ˆç»éªŒå€¼ <span id='_tLabelCount' /><br /><div id='tlabelslider'></div>å¥½è¯„ç‡ <span id='_thumbupRate'/><br /><div id='thumbupRateslider'></div>å¹´é¾„ <span id='_tAge' /><br /><div id='tAgeSlider'></div></div>");
-            $('body').append("<div id='wwwww' style='display:none;'></div>"); //è¿™æ˜¯ä¸€ä¸ªå¥‡æ€ªçš„BUG on jqueryui. å¦‚æœä¸å¤šé¢å¤–æ·»åŠ ä¸€ä¸ªï¼Œåˆ™dialogæ— æ³•å¼¹å‡ºã€‚
+            $('body').append("<div id='filterdialog' title='Teacher Filter'>µ±Ç°¿ÉÑ¡½ÌÊ¦<span id='tcount'>28</span>Î» &nbsp;&nbsp;&nbsp;[<a href='https://github.com/niubilityfrontend/huttingtecaheron51talk/issues/new?assignees=&labels=&template=feature_request.md&title=' target='_blank'>½¨ÒéĞÂ¹¦ÄÜ</a>]<br />ÓĞĞ§¾­ÑéÖµ <span id='_tLabelCount' /><br /><div id='tlabelslider'></div>ºÃÆÀÂÊ <span id='_thumbupRate'/><br /><div id='thumbupRateslider'></div>ÄêÁä <span id='_tAge' /><br /><div id='tAgeSlider'></div></div>");
+            $('body').append("<div id='wwwww' style='display:none;'></div>"); //ÕâÊÇÒ»¸öÆæ¹ÖµÄBUG on jqueryui. Èç¹û²»¶à¶îÍâÌí¼ÓÒ»¸ö£¬ÔòdialogÎŞ·¨µ¯³ö¡£
             $('#filterdialog').dialog();
-              console.log('shown dialog.');
+            console.log('shown dialog.');
             $("#tlabelslider").slider({
                 range: true,
-                min: minlabel-1,
+                min: minlabel - 1,
                 max: maxlabel,
-                values: [ config.l1<minlabel-1?minlabel-1:config.l1, config.l2>maxlabel?maxlabel:config.l2],
-                slide:function(event,ui){
-                    $('#_tLabelCount').html(ui.values[0]+ " - " + ui.values[1]);
+                values: [config.l1 < minlabel - 1 ? minlabel - 1 : config.l1, config.l2 > maxlabel ? maxlabel : config.l2],
+                slide: function (event, ui) {
+                    $('#_tLabelCount').html(ui.values[0] + " - " + ui.values[1]);
                 },
             }).on('slidestop', function (event, ui) {
                 executeFilters();
@@ -255,9 +257,9 @@
                 range: true,
                 min: 0,
                 max: 100,
-                values: [config.rate1,config.rate2],
-                slide:function(event,ui){
-                    $('#_thumbupRate').html(ui.values[0] + "% - " + ui.values[1]+'%');
+                values: [config.rate1, config.rate2],
+                slide: function (event, ui) {
+                    $('#_thumbupRate').html(ui.values[0] + "% - " + ui.values[1] + '%');
                 },
             }).on('slidestop', function (event, ui) {
                 executeFilters();
@@ -266,11 +268,11 @@
                 range: true,
                 min: 0,
                 max: 110,
-                values: [config.age1,config.age2],
-                slide:function(event,ui){
+                values: [config.age1, config.age2],
+                slide: function (event, ui) {
                     $('#_tAge').html(ui.values[0] + " - " + ui.values[1]);
                 },
-            }).on( "slidestop",function (event, ui) {
+            }).on("slidestop", function (event, ui) {
                 executeFilters();
             });
             var l1 = $("#tlabelslider").slider('values', 0);
@@ -283,18 +285,18 @@
             var age2 = $("#tAgeSlider").slider('values', 1);
 
             $('#_tAge').html(age1 + " - " + age2);
-            $('#_tLabelCount').html(l1+ " - " + l2);
-            $('#_thumbupRate').html(rate1 + "% - " + rate2+'%');
+            $('#_tLabelCount').html(l1 + " - " + l2);
+            $('#_thumbupRate').html(rate1 + "% - " + rate2 + '%');
         } catch (ex) {
-            console.log(ex+"");
+            console.log(ex + "");
         }
         executeFilters();
         next();
     });
 
-    submit(function(next){
+    submit(function (next) {
         $('.s-t-list').before($(".s-t-page").prop('outerHTML'));
-         $('#filterdialog').dialog("open");
+        $('#filterdialog').dialog("open");
         $('#filterdialog').parent().scrollFix();
         next();
     });
