@@ -256,7 +256,7 @@
         try {
             var config = GM_getValue('filterconfig', { l1: minlabel - 1, l2: maxlabel, rate1: 0, rate2: 100, age1: 0, age2: 110 });
 
-            $('body').append("<div id='filterdialog' title='Teacher Filter'>当前可选教师<span id='tcount'>28</span>位 <div id='buttons'><button id='asc' title='当前为降序，点击后按升序排列'>升序</button><button id='desc' title='当前为升序，点击进行降序排列'  style='display:none;'>降序</button><button title='清空教师信息缓存，并重新搜索'>清除缓存</button> <a>去提建议和BUG</a></div><br />有效经验值 <span id='_tLabelCount' /><br /><div id='tlabelslider'></div>好评率 <span id='_thumbupRate'/><br /><div id='thumbupRateslider'></div>年龄 <span id='_tAge' /><br /><div id='tAgeSlider'></div></div>");
+            $('body').append("<div id='filterdialog' title='Teacher Filter'>当前可选教师<span id='tcount'>28</span>位 <div id='buttons'><button id='asc' title='当前为降序，点击后按升序排列'>升序</button><button id='desc' title='当前为升序，点击进行降序排列'  style='display:none;'>降序</button><button title='清空教师信息缓存，并重新搜索'>清除缓存</button> <a>去提建议和BUG</a><a>？</a></div><br />有效经验值 <span id='_tLabelCount' /><br /><div id='tlabelslider'></div>好评率 <span id='_thumbupRate'/><br /><div id='thumbupRateslider'></div>年龄 <span id='_tAge' /><br /><div id='tAgeSlider'></div></div>");
             $('body').append("<div id='wwwww' style='display:none;'></div>"); //这是一个奇怪的BUG on jqueryui. 如果不多额外添加一个，则dialog无法弹出。
             $('#filterdialog').dialog({ 'width':'360px'});
             console.log('shown dialog.');
@@ -312,6 +312,9 @@
                 $('.go-search').click();
             }).end().eq(3).button({ icon: 'ui-icon-arrow-4-diag',showLabel: false })//submit suggestion
                 .prop('href','https://github.com/niubilityfrontend/huttingtecaheron51talk/issues/new?assignees=&labels=&template=feature_request.md&title=')
+                .prop('target','_blank') 
+                .end().eq(4).button({})
+                .prop('href','https://github.com/niubilityfrontend/huttingtecaheron51talk/blob/master/README.md')
                 .prop('target','_blank') ;
 
             var l1 = $("#tlabelslider").slider('values', 0);
