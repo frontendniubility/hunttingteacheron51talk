@@ -1,4 +1,4 @@
-// ==UserScript==
+﻿// ==UserScript==
 // @name         HunttingTeacher
 // @version      0.1.4
 // @namespace    https://github.com/niubilityfrontend
