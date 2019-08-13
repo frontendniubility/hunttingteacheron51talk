@@ -111,15 +111,28 @@
         }
         return this;
     };
+    Number.prototype.toString = function () {
+        return this.toFixed(2);
+    };
+    String.prototype.toFloat = function () {
+        return parseFloat(this);
+    };
+    var asc = function (a, b) {
+        return $(a).attr('indicator').toFloat() > $(b).attr('indicator').toFloat() ? 1 : -1;
+    };
 
-    function teacher_sort(a, b) {
-        return b - a;
-    }
+    var desc = function (a, b) {
+        return $(a).attr('indicator').toFloat() > $(b).attr('indicator').toFloat() ? -1 : 1;
+    };
+
+    var sortByIndicator = function (sortBy) {
+        var sortEle = $('.s-t-content.f-cb .item').sort(sortBy);
+        $('.s-t-content.f-cb').empty().append(sortEle);
+    };
     /**
      * 提交运算函数到 document 的 fx 队列
      */
     var submit = function (fun) {
-        //debugger;
         var queue = $.queue(document, "fx", fun);
         if (queue[0] == 'inprogress') {
             return;
@@ -132,70 +145,14 @@
         minlabel = (tinfo.label < minlabel) ? tinfo.label : minlabel;
         jqel.data("teacherinfo", tinfo);
         jqel.find(".teacher-name")
-            .text(jqel.find(".teacher-name").text() + "[" + tinfo.label + "]")
-            .text(jqel.find(".teacher-name").text() + "[" + tinfo.thumbupRate + "%]");
+            .text(jqel.find(".teacher-name").text() + "[" + tinfo.label + "*" + tinfo.thumbupRate + "%=" + tinfo.indicator / 100 + "]");
         jqel.attr('thumbup', tinfo.thumbup)
             .attr('thumbdown', tinfo.thumbdown)
             .attr('thumbupRate', tinfo.thumbupRate)
             .attr('age', tinfo.age)
-            .attr('label', tinfo.label);
+            .attr('label', tinfo.label)
+            .attr('indicator', tinfo.indicator);
     }
-    let num = /[0-9]*/g;
-    $.each($(".item-top-cont"), function (i, item) {
-        item.innerHTML = item.innerHTML.replace('<!--', '').replace('-->', '');
-    });
-
-    $(".item").each(function (index, el) {
-
-        submit(function (next) {
-            let jqel = $(el);
-            let tid = jqel.find(".teacher-details-link a").attr('href').replace("https://www.51talk.com/TeacherNew/info/", "").replace('http://www.51talk.com/TeacherNew/info/', '');
-            var tinfokey = 'tinfo-' + tid;
-            var tinfo = GM_getValue(tinfokey);
-            if (tinfo) {
-                updateTeacherinfoToUI(jqel, tinfo);
-                next();
-                return;
-            }
-            // ajax 请求一定要包含在一个函数中
-            var start = (new Date()).getTime();
-            $.ajax({
-                url: window.location.protocol + '//www.51talk.com/TeacherNew/teacherComment?tid=' + tid + '&type=bad&has_msg=1',
-                type: 'GET',
-                dateType: 'html',
-                success: function (r) {
-                    var jqel = $($(".item")[index]);
-                    if ($(".evaluate-content-left span", r) && $(".evaluate-content-left span", r).length >= 3) {
-                        var thumbup = Number($(".evaluate-content-left span:eq(1)", r).text().match(num).clean("")[0]);
-                        var thumbdown = Number($(".evaluate-content-left span:eq(2)", r).text().match(num).clean("")[0]);
-                        var thumbupRate = ((thumbup + 0.00001) / (thumbdown + thumbup)).toFixed(2) * 100;
-                        var age = jqel.find(".teacher-age").text().match(num).clean("");
-                        var label = (function () {
-                            let j_len = jqel.find(".label").text().match(num).clean("").length; let l = 0;
-                            for (let j = 0; j < j_len; j++) {
-                                l += Number(jqel.find(".label").text().match(num).clean("")[j]);
-                            }
-                            l = Math.ceil(l / 5);
-                            return l;
-                        })();;
-                        var tinfo = { 'thumbup': thumbup, 'thumbdown': thumbdown, 'thumbupRate': thumbupRate, 'age': age, 'label': label };
-
-                        GM_setValue(tinfokey, tinfo);
-                        updateTeacherinfoToUI(jqel, tinfo);
-                    } else {
-                        console.log('Teacher s detail info getting error:' + JSON.stringify(item) + ",error info:" + r);
-                    }
-                },
-                error: function (data) { console.log("xhr error when getting teacher " + JSON.stringify(item) + ",error msg:" + JSON.stringify(data)); }
-            }).always(function () {
-                while ((new Date()).getTime() - start < 500) {
-                    continue;
-                }
-                next();
-            });
-        });
-    });
-
     function executeFilters() {
         var l1 = $("#tlabelslider").slider('values', 0);
         var l2 = $("#tlabelslider").slider('values', 1);
@@ -212,12 +169,10 @@
         $.each($('.item'), function (i, item) {
             var node = $(item);
             var tinfo = node.data("teacherinfo");
-
             if (!tinfo) {
-                return;
+                return true;
             }
             if ((tinfo.thumbupRate >= rate1 && tinfo.thumbupRate <= rate2) && tinfo.label >= l1 && tinfo.label <= l2 && tinfo.age >= age1 && tinfo.age <= age2) {
-
                 if (node.is(':hidden')) {　　//如果node是隐藏的则显示node元素，否则隐藏
                     node.css('color', 'red').show();
                 } else {
@@ -226,19 +181,75 @@
                 }
                 tcount++;
             } else {
-                //console.log('teacher info'+JSON.stringify(tinfo))
-                //console.log({l1,l2,rate1,rate2,age1,age2});
                 node.css('color', 'white').hide();
             }
         });
         $('#tcount').text(tcount);
     }
 
+
+
+    $.each($(".item-top-cont"), function (i, item) {
+        item.innerHTML = item.innerHTML.replace('<!--', '').replace('-->', '');
+    });
+
+    $(".item").each(function (index, el) {
+        submit(function (next) {
+            let jqel = $(el);
+            let tid = jqel.find(".teacher-details-link a").attr('href').replace("https://www.51talk.com/TeacherNew/info/", "").replace('http://www.51talk.com/TeacherNew/info/', '');
+            var tinfokey = 'tinfo-' + tid;
+            var tinfo = GM_getValue(tinfokey);
+            if (tinfo) {
+                updateTeacherinfoToUI(jqel, tinfo);
+                next();
+                return true;
+            }
+            // ajax 请求一定要包含在一个函数中
+            var start = (new Date()).getTime();
+            let num = /[0-9]*/g;
+            $.ajax({
+                url: window.location.protocol + '//www.51talk.com/TeacherNew/teacherComment?tid=' + tid + '&type=bad&has_msg=1',
+                type: 'GET',
+                dateType: 'html',
+                success: function (r) {
+                    let jqel = $($(".item")[index]);
+                    if ($(".evaluate-content-left span", r) && $(".evaluate-content-left span", r).length >= 3) {
+                        var thumbup = Number($(".evaluate-content-left span:eq(1)", r).text().match(num).clean("")[0]);
+                        var thumbdown = Number($(".evaluate-content-left span:eq(2)", r).text().match(num).clean("")[0]);
+                        var thumbupRate = ((thumbup + 0.00001) / (thumbdown + thumbup)).toFixed(2) * 100;
+                        var age = jqel.find(".teacher-age").text().match(num).clean("")[0];
+                        var label = (function () {
+                            let j_len = jqel.find(".label").text().match(num).clean("").length; let l = 0;
+                            for (let j = 0; j < j_len; j++) {
+                                l += Number(jqel.find(".label").text().match(num).clean("")[j]);
+                            }
+                            l = Math.ceil(l / 5);
+                            return l;
+                        })();
+                        var tinfo = { 'thumbup': thumbup, 'thumbdown': thumbdown, 'thumbupRate': thumbupRate, 'age': age, 'label': label, 'indicator': label * thumbupRate };
+
+                        GM_setValue(tinfokey, tinfo);
+                        updateTeacherinfoToUI(jqel, tinfo);
+                    } else {
+                        console.log('Teacher s detail info getting error:' + JSON.stringify(item) + ",error info:" + r);
+                    }
+                },
+                error: function (data) { console.log("xhr error when getting teacher " + JSON.stringify(item) + ",error msg:" + JSON.stringify(data)); }
+            }).always(function () {
+                while ((new Date()).getTime() - start < 800) {
+                    continue;
+                }
+                next();
+            });
+        });
+    });
+
+
     submit(function (next) {
         try {
             var config = GM_getValue('filterconfig', { l1: minlabel - 1, l2: maxlabel, rate1: 0, rate2: 100, age1: 0, age2: 110 });
 
-            $('body').append("<div id='filterdialog' title='Teacher Filter'>当前可选教师<span id='tcount'>28</span>位 &nbsp;&nbsp;&nbsp;[<a href='https://github.com/niubilityfrontend/huttingtecaheron51talk/issues/new?assignees=&labels=&template=feature_request.md&title=' target='_blank'>建议新功能</a>]<br />有效经验值 <span id='_tLabelCount' /><br /><div id='tlabelslider'></div>好评率 <span id='_thumbupRate'/><br /><div id='thumbupRateslider'></div>年龄 <span id='_tAge' /><br /><div id='tAgeSlider'></div></div>");
+            $('body').append("<div id='filterdialog' title='Teacher Filter'>当前可选教师<span id='tcount'>28</span>位 <button  type='button' id='asc' style='display:none;'><span class='ui-icon ui-icon-caret-1-n'></span>升序</button><button type='button'id='desc'><span class='ui-icon ui-icon-caret-1-s'></span>降序</button>&nbsp;&nbsp;&nbsp;[<a href='https://github.com/niubilityfrontend/huttingtecaheron51talk/issues/new?assignees=&labels=&template=feature_request.md&title=' target='_blank'>建议新功能</a>]<br />有效经验值 <span id='_tLabelCount' /><br /><div id='tlabelslider'></div>好评率 <span id='_thumbupRate'/><br /><div id='thumbupRateslider'></div>年龄 <span id='_tAge' /><br /><div id='tAgeSlider'></div></div>");
             $('body').append("<div id='wwwww' style='display:none;'></div>"); //这是一个奇怪的BUG on jqueryui. 如果不多额外添加一个，则dialog无法弹出。
             $('#filterdialog').dialog();
             console.log('shown dialog.');
@@ -275,6 +286,19 @@
             }).on("slidestop", function (event, ui) {
                 executeFilters();
             });
+
+
+            $('#desc').click(function () {
+                $('#asc').show();
+                $(this).hide();
+                sortByIndicator(desc);
+            });
+
+            $('#asc').click(function () {
+                $('#desc').show();
+                $(this).hide();
+                sortByIndicator(asc);
+            });
             var l1 = $("#tlabelslider").slider('values', 0);
             var l2 = $("#tlabelslider").slider('values', 1);
 
@@ -300,5 +324,6 @@
         $('#filterdialog').parent().scrollFix();
         next();
     });
+
 
 })();
