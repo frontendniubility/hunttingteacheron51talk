@@ -184,10 +184,12 @@
             var tinfo = JSON.parse(tinfojson);
             if ((tinfo.thumbupRate >= rate1 && tinfo.thumbupRate <= rate2) && tinfo.label >= l1 && tinfo.label <= l2 && tinfo.age >= age1 && tinfo.age <= age2) {
                 if (node.is(':hidden')) {　　//如果node是隐藏的则显示node元素，否则隐藏
-                    node.css('color', 'red').show();
+                    node.show();
+                    node.animate({left:"+=50"
+                    },3500).animate({left:"-=50"
+                    },3500);
                 } else {
                     //nothing todo
-                    //node.hide();
                 }
                 tcount++;
             } else {
@@ -216,7 +218,6 @@
                 type: 'GET',
                 dateType: 'html',
                 success: function (r) {
-                    let jqel = $($(".item")[index]);
                     if ($(".evaluate-content-left span", r) && $(".evaluate-content-left span", r).length >= 3) {
                         var thumbup = Number($(".evaluate-content-left span:eq(1)", r).text().match(num).clean("")[0]);
                         var thumbdown = Number($(".evaluate-content-left span:eq(2)", r).text().match(num).clean("")[0]);
@@ -235,10 +236,10 @@
                         GM_setValue(tinfokey, tinfo);
                         updateTeacherinfoToUI(jqel, tinfo);
                     } else {
-                        console.log('Teacher s detail info getting error:' + JSON.stringify(item) + ",error info:" + r);
+                        console.log('Teacher s detail info getting error:' + JSON.stringify(jqel) + ",error info:" + r);
                     }
                 },
-                error: function (data) { console.log("xhr error when getting teacher " + JSON.stringify(item) + ",error msg:" + JSON.stringify(data)); }
+                error: function (data) { console.log("xhr error when getting teacher " + JSON.stringify(jqel) + ",error msg:" + JSON.stringify(data)); }
             }).always(function () {
                 while ((new Date()).getTime() - start < 600) {
                     continue;
