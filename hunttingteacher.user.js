@@ -269,7 +269,7 @@
                 range: true,
                 min: minlabel - 1,
                 max: maxlabel,
-                values: [config.l1 < minlabel - 1 ? minlabel - 1 : config.l1, config.l2 > maxlabel ? maxlabel : config.l2],
+                values: [config.l1 < minlabel - 1 ? minlabel - 1 : config.l1, maxlabel],
                 slide: function (event, ui) {
                     $('#_tLabelCount').html(ui.values[0] + " - " + ui.values[1]);
                 },
@@ -280,7 +280,7 @@
                 range: true,
                 min: 0,
                 max: 100,
-                values: [config.rate1, config.rate2],
+                values: [config.rate1, 100],
                 slide: function (event, ui) {
                     $('#_thumbupRate').html(ui.values[0] + "% - " + ui.values[1] + '%');
                 },
