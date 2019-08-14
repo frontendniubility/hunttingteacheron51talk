@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         辅助选老师-有效经验值|好评率|年龄|Top 5
-// @version      0.1.11
+// @version      0.1.12
 // @namespace    https://github.com/niubilityfrontend
 // @description  51Talk.辅助选老师-有效经验值|好评率|年龄|Top 5；有效经验值=所有标签数量相加后除以5；好评率=好评数/总评论数；年龄根据你的喜好选择。
 // @author       jimbo
@@ -102,6 +102,7 @@
         + ' .search-teachers .s-t-list .item {   height: 679px; }'
         + '.search-teachers .s-t-list .s-t-content { margin-right: 0px;}'
         + '.search-teachers { width: 100%; }'
+        +'.search-teachers .s-t-list .item { height: auto;  margin-right: 5px; margin-bottom: 5px; }'
         + '</style>');
 
 
