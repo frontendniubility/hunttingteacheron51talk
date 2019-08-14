@@ -98,11 +98,11 @@
         + 'rel="stylesheet" type="text/css">'
     );
     $("head").append('<style type="text/css">'
-                     +'.search-teachers .s-t-list .item-time-list {margin-top:315px;}'
-                     +' .search-teachers .s-t-list .item {   height: 679px; }'
-                     +'.search-teachers .s-t-list .s-t-content { margin-right: 0px;}'
-                     +'.search-teachers { width: 100%; }'
-                    +'</style>');
+        + '.search-teachers .s-t-list .item-time-list {margin-top:315px;}'
+        + ' .search-teachers .s-t-list .item {   height: 679px; }'
+        + '.search-teachers .s-t-list .s-t-content { margin-right: 0px;}'
+        + '.search-teachers { width: 100%; }'
+        + '</style>');
 
 
     function sleep(delay) {
@@ -153,7 +153,7 @@
     function updateTeacherinfoToUI(jqel, tinfo) {
         maxlabel = (tinfo.label > maxlabel) ? tinfo.label : maxlabel;
         minlabel = (tinfo.label < minlabel) ? tinfo.label : minlabel;
-        jqel.attr("teacherinfo",JSON.stringify(tinfo));
+        jqel.attr("teacherinfo", JSON.stringify(tinfo));
         jqel.find(".teacher-name")
             .html(jqel.find(".teacher-name").text() + "<br />[" + tinfo.label + "x" + tinfo.thumbupRate + "%=" + tinfo.indicator / 100 + "]");
         jqel.attr('thumbup', tinfo.thumbup)
@@ -182,7 +182,7 @@
             if (!tinfojson) {
                 return true;
             }
-            var tinfo=JSON.parse(tinfojson);
+            var tinfo = JSON.parse(tinfojson);
             if ((tinfo.thumbupRate >= rate1 && tinfo.thumbupRate <= rate2) && tinfo.label >= l1 && tinfo.label <= l2 && tinfo.age >= age1 && tinfo.age <= age2) {
                 if (node.is(':hidden')) {　　//如果node是隐藏的则显示node元素，否则隐藏
                     node.css('color', 'red').show();
@@ -262,7 +262,7 @@
 
             $('body').append("<div id='filterdialog' title='Teacher Filter'>当前可选教师<span id='tcount'>28</span>位 <div id='buttons'><button id='asc' title='当前为降序，点击后按升序排列'>升序</button><button id='desc' title='当前为升序，点击进行降序排列'  style='display:none;'>降序</button><button title='清空教师信息缓存，并重新搜索'>清除缓存</button> <a>去提建议和BUG</a><a>？</a></div><br />有效经验值 <span id='_tLabelCount' /><br /><div id='tlabelslider'></div>好评率 <span id='_thumbupRate'/><br /><div id='thumbupRateslider'></div>年龄 <span id='_tAge' /><br /><div id='tAgeSlider'></div></div>");
             $('body').append("<div id='wwwww' style='display:none;'></div>"); //这是一个奇怪的BUG on jqueryui. 如果不多额外添加一个，则dialog无法弹出。
-            $('#filterdialog').dialog({ 'width':'360px'});
+            $('#filterdialog').dialog({ 'width': '360px' });
             console.log('shown dialog.');
             $("#tlabelslider").slider({
                 range: true,
@@ -300,26 +300,26 @@
 
             $('#buttons button,#buttons a').eq(0).button({ icon: 'ui-icon-arrowthick-1-n' })//升序
                 .click(function () {
-                $('#desc').show();
-                $(this).hide();
-                sortByIndicator(asc);
-            }).end().eq(1).button({ icon: 'ui-icon-arrowthick-1-s' })//降序
+                    $('#desc').show();
+                    $(this).hide();
+                    sortByIndicator(asc);
+                }).end().eq(1).button({ icon: 'ui-icon-arrowthick-1-s' })//降序
                 .click(function () {
-                $('#asc').show();
-                $(this).hide();
-                sortByIndicator(desc);
-            }).end().eq(2).button({ icon: 'ui-icon-refresh' })//reload
+                    $('#asc').show();
+                    $(this).hide();
+                    sortByIndicator(desc);
+                }).end().eq(2).button({ icon: 'ui-icon-refresh' })//reload
                 .click(function () {
-                $.each(GM_listValues(), function (i, item) {
-                    GM_deleteValue(item);
-                });
-                $('.go-search').click();
-            }).end().eq(3).button({ icon: 'ui-icon-arrow-4-diag',showLabel: false })//submit suggestion
-                .prop('href','https://github.com/niubilityfrontend/huttingtecaheron51talk/issues/new?assignees=&labels=&template=feature_request.md&title=')
-                .prop('target','_blank') 
+                    $.each(GM_listValues(), function (i, item) {
+                        GM_deleteValue(item);
+                    });
+                    $('.go-search').click();
+                }).end().eq(3).button({ icon: 'ui-icon-arrow-4-diag', showLabel: false })//submit suggestion
+                .prop('href', 'https://github.com/niubilityfrontend/huttingtecaheron51talk/issues/new?assignees=&labels=&template=feature_request.md&title=')
+                .prop('target', '_blank')
                 .end().eq(4).button({})
-                .prop('href','https://github.com/niubilityfrontend/huttingtecaheron51talk/blob/master/README.md')
-                .prop('target','_blank') ;
+                .prop('href', 'https://github.com/niubilityfrontend/huttingtecaheron51talk/blob/master/README.md')
+                .prop('target', '_blank');
 
             var l1 = $("#tlabelslider").slider('values', 0);
             var l2 = $("#tlabelslider").slider('values', 1);
@@ -342,7 +342,6 @@
     });
 
     submit(function (next) {
-        alert(1);
         $('.s-t-list').before($(".s-t-page").prop('outerHTML'));
         $('#filterdialog').dialog("open");
         $('#filterdialog').parent().scrollFix();
