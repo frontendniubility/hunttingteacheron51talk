@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         辅助选老师-有效经验值|好评率|年龄|Top 5
-// @version      0.1.17
+// @version      0.1.18
 // @namespace    https://github.com/niubilityfrontend
 // @description  51Talk.辅助选老师-有效经验值|好评率|年龄|Top 5；有效经验值=所有标签数量相加后除以5；好评率=好评数/总评论数；年龄根据你的喜好选择。
 // @author       jimbo
@@ -130,6 +130,15 @@
     String.prototype.toFloat = function () {
         return parseFloat(this);
     };
+    String.prototype.startsWith = function (str) {
+        return this.slice(0, str.length) == str;
+    };
+    String.prototype.endsWith = function (str) {
+        return this.slice(-str.length) == str;
+    };
+    String.prototype.contains = function (str) {
+        return this.indexOf(str) > -1;
+    };
     var asc = function (a, b) {
         return $(a).attr('indicator').toFloat() > $(b).attr('indicator').toFloat() ? 1 : -1;
     };
@@ -166,15 +175,7 @@
             .attr('label', tinfo.label)
             .attr('indicator', tinfo.indicator);
     }
-    function executeFilters(nosaveconfig) {
-        var l1 = $("#tlabelslider").slider('values', 0);
-        var l2 = $("#tlabelslider").slider('values', 1);
-        var rate1 = $("#thumbupRateslider").slider('values', 0);
-        var rate2 = $("#thumbupRateslider").slider('values', 1);
-        var age1 = $("#tAgeSlider").slider('values', 0);
-        var age2 = $("#tAgeSlider").slider('values', 1);
-        if (!nosaveconfig)
-            GM_setValue('filterconfig', { l1, l2, rate1, rate2, age1, age2 });
+    function executeFilters(uifilters) {
         let tcount = 0;
         $.each($('.item'), function (i, item) {
             var node = $(item);
@@ -183,7 +184,9 @@
                 return true;
             }
             var tinfo = JSON.parse(tinfojson);
-            if ((tinfo.thumbupRate >= rate1 && tinfo.thumbupRate <= rate2) && tinfo.label >= l1 && tinfo.label <= l2 && tinfo.age >= age1 && tinfo.age <= age2) {
+            if ((tinfo.thumbupRate >= uifilters.rate1 && tinfo.thumbupRate <= uifilters.rate2)
+                && tinfo.label >= uifilters.l1 && tinfo.label <= uifilters.l2
+                && tinfo.age >= uifilters.age1 && tinfo.age <= uifilters.age2) {
                 if (node.is(':hidden')) {　　//如果node是隐藏的则显示node元素，否则隐藏
                     node.show();
                     node.animate({
@@ -201,17 +204,21 @@
         });
         $('#tcount').text(tcount);
     }
-
+    let configExprMilliseconds = 43200000; //1000*60*60*12; 缓存12小时
     $(".item").each(function (index, el) {
         submit(function (next) {
             let jqel = $(el);
             let tid = jqel.find(".teacher-details-link a").attr('href').replace("https://www.51talk.com/TeacherNew/info/", "").replace('http://www.51talk.com/TeacherNew/info/', '');
             var tinfokey = 'tinfo-' + tid;
-            var tinfo = GM_getValue(tinfokey);
-            if (tinfo) {
-                updateTeacherinfoToUI(jqel, tinfo);
-                next();
-                return true;
+            var tinfoexpirekey = 'tinfoexpire-' + tid;
+            var tinfoexpire = GM_getValue(tinfoexpirekey, new Date().getTime());
+            if (  new Date().getTime()- tinfoexpire<configExprMilliseconds) {
+                var tinfo = GM_getValue(tinfokey);
+                if (tinfo) {
+                    updateTeacherinfoToUI(jqel, tinfo);
+                    next();
+                    return true;
+                }
             }
             // ajax 请求一定要包含在一个函数中
             var start = (new Date()).getTime();
@@ -235,7 +242,7 @@
                             return l;
                         })();
                         var tinfo = { 'thumbup': thumbup, 'thumbdown': thumbdown, 'thumbupRate': thumbupRate, 'age': age, 'label': label, 'indicator': label * thumbupRate };
-
+                        GM_setValue(tinfoexpirekey, new Date().getTime());
                         GM_setValue(tinfokey, tinfo);
                         updateTeacherinfoToUI(jqel, tinfo);
                     } else {
@@ -268,7 +275,18 @@
                     $('#_tLabelCount').html(ui.values[0] + " - " + ui.values[1]);
                 },
             }).on('slidestop', function (event, ui) {
-                executeFilters();
+                var l1 = $("#tlabelslider").slider('values', 0);
+                var l2 = $("#tlabelslider").slider('values', 1);
+                var rate1 = $("#thumbupRateslider").slider('values', 0);
+                var rate2 = $("#thumbupRateslider").slider('values', 1);
+                var age1 = $("#tAgeSlider").slider('values', 0);
+                var age2 = $("#tAgeSlider").slider('values', 1);
+                var uifilters = { l1, l2, rate1, rate2, age1, age2 };
+                var filterconfig = GM_getValue('filterconfig', uifilters);
+                filterconfig.l1 = l1;
+                filterconfig.l2 = l2;
+                GM_setValue('filterconfig', filterconfig);
+                executeFilters(uifilters);
             });
             $("#thumbupRateslider").slider({
                 range: true,
@@ -279,7 +297,18 @@
                     $('#_thumbupRate').html(ui.values[0] + "% - " + ui.values[1] + '%');
                 },
             }).on('slidestop', function (event, ui) {
-                executeFilters();
+                var l1 = $("#tlabelslider").slider('values', 0);
+                var l2 = $("#tlabelslider").slider('values', 1);
+                var rate1 = $("#thumbupRateslider").slider('values', 0);
+                var rate2 = $("#thumbupRateslider").slider('values', 1);
+                var age1 = $("#tAgeSlider").slider('values', 0);
+                var age2 = $("#tAgeSlider").slider('values', 1);
+                var uifilters = { l1, l2, rate1, rate2, age1, age2 };
+                var filterconfig = GM_getValue('filterconfig', uifilters);
+                filterconfig.rate1 = rate1;
+                filterconfig.rate2 = rate2;
+                GM_setValue('filterconfig', filterconfig);
+                executeFilters(uifilters);
             });
             $("#tAgeSlider").slider({
                 range: true,
@@ -290,7 +319,18 @@
                     $('#_tAge').html(ui.values[0] + " - " + ui.values[1]);
                 },
             }).on("slidestop", function (event, ui) {
-                executeFilters();
+                var l1 = $("#tlabelslider").slider('values', 0);
+                var l2 = $("#tlabelslider").slider('values', 1);
+                var rate1 = $("#thumbupRateslider").slider('values', 0);
+                var rate2 = $("#thumbupRateslider").slider('values', 1);
+                var age1 = $("#tAgeSlider").slider('values', 0);
+                var age2 = $("#tAgeSlider").slider('values', 1);
+                var uifilters = { l1, l2, rate1, rate2, age1, age2 };
+                var filterconfig = GM_getValue('filterconfig', uifilters);
+                filterconfig.age1 = age1;
+                filterconfig.age2 = age2;
+                GM_setValue('filterconfig', filterconfig);
+                executeFilters(uifilters);
             });
 
             $('#buttons button,#buttons a').eq(0).button({ icon: 'ui-icon-arrowthick-1-n' })//升序
@@ -306,7 +346,7 @@
                 }).end().eq(2).button({ icon: 'ui-icon-refresh' })//reload
                 .click(function () {
                     $.each(GM_listValues(), function (i, item) {
-                        if (item.start('tinfo-')) {
+                        if (item.startsWith('tinfo-')) {
                             GM_deleteValue(item);
                         }
                     });
@@ -320,13 +360,10 @@
 
             var l1 = $("#tlabelslider").slider('values', 0);
             var l2 = $("#tlabelslider").slider('values', 1);
-
             var rate1 = $("#thumbupRateslider").slider('values', 0);
             var rate2 = $("#thumbupRateslider").slider('values', 1);
-
             var age1 = $("#tAgeSlider").slider('values', 0);
             var age2 = $("#tAgeSlider").slider('values', 1);
-
             $('#_tAge').html(age1 + " - " + age2);
             $('#_tLabelCount').html(l1 + " - " + l2);
             $('#_thumbupRate').html(rate1 + "% - " + rate2 + '%');
