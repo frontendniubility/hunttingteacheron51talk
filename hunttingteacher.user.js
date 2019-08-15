@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         辅助选老师-有效经验值|好评率|年龄|Top 5
-// @version      0.1.11
+// @version      0.1.16
 // @namespace    https://github.com/niubilityfrontend
 // @description  51Talk.辅助选老师-有效经验值|好评率|年龄|Top 5；有效经验值=所有标签数量相加后除以5；好评率=好评数/总评论数；年龄根据你的喜好选择。
 // @author       jimbo
@@ -102,9 +102,12 @@
         + ' .search-teachers .s-t-list .item {   height: 679px; }'
         + '.search-teachers .s-t-list .s-t-content { margin-right: 0px;}'
         + '.search-teachers { width: 100%; }'
+        + '.search-teachers .s-t-list .item { height: auto;  margin-right: 5px; margin-bottom: 5px; }'
         + '</style>');
 
-
+    $.each($(".item-top-cont"), function (i, item) {
+        item.innerHTML = item.innerHTML.replace('<!--', '').replace('-->', '');
+    });
     function sleep(delay) {
         var start = (new Date()).getTime();
         while ((new Date()).getTime() - start < delay) {
@@ -166,15 +169,11 @@
     function executeFilters() {
         var l1 = $("#tlabelslider").slider('values', 0);
         var l2 = $("#tlabelslider").slider('values', 1);
-
         var rate1 = $("#thumbupRateslider").slider('values', 0);
         var rate2 = $("#thumbupRateslider").slider('values', 1);
-
         var age1 = $("#tAgeSlider").slider('values', 0);
         var age2 = $("#tAgeSlider").slider('values', 1);
-
         GM_setValue('filterconfig', { l1, l2, rate1, rate2, age1, age2 });
-
         let tcount = 0;
         $.each($('.item'), function (i, item) {
             var node = $(item);
@@ -185,10 +184,12 @@
             var tinfo = JSON.parse(tinfojson);
             if ((tinfo.thumbupRate >= rate1 && tinfo.thumbupRate <= rate2) && tinfo.label >= l1 && tinfo.label <= l2 && tinfo.age >= age1 && tinfo.age <= age2) {
                 if (node.is(':hidden')) {　　//如果node是隐藏的则显示node元素，否则隐藏
-                    node.css('color', 'red').show();
+                    node.show();
+                    node.animate({left:"+=50"
+                    },3500).animate({left:"-=50"
+                    },3500);
                 } else {
                     //nothing todo
-                    //node.hide();
                 }
                 tcount++;
             } else {
@@ -197,12 +198,6 @@
         });
         $('#tcount').text(tcount);
     }
-
-
-
-    $.each($(".item-top-cont"), function (i, item) {
-        item.innerHTML = item.innerHTML.replace('<!--', '').replace('-->', '');
-    });
 
     $(".item").each(function (index, el) {
         submit(function (next) {
@@ -223,7 +218,6 @@
                 type: 'GET',
                 dateType: 'html',
                 success: function (r) {
-                    let jqel = $($(".item")[index]);
                     if ($(".evaluate-content-left span", r) && $(".evaluate-content-left span", r).length >= 3) {
                         var thumbup = Number($(".evaluate-content-left span:eq(1)", r).text().match(num).clean("")[0]);
                         var thumbdown = Number($(".evaluate-content-left span:eq(2)", r).text().match(num).clean("")[0]);
@@ -242,12 +236,12 @@
                         GM_setValue(tinfokey, tinfo);
                         updateTeacherinfoToUI(jqel, tinfo);
                     } else {
-                        console.log('Teacher s detail info getting error:' + JSON.stringify(item) + ",error info:" + r);
+                        console.log('Teacher s detail info getting error:' + JSON.stringify(jqel) + ",error info:" + r);
                     }
                 },
-                error: function (data) { console.log("xhr error when getting teacher " + JSON.stringify(item) + ",error msg:" + JSON.stringify(data)); }
+                error: function (data) { console.log("xhr error when getting teacher " + JSON.stringify(jqel) + ",error msg:" + JSON.stringify(data)); }
             }).always(function () {
-                while ((new Date()).getTime() - start < 800) {
+                while ((new Date()).getTime() - start < 600) {
                     continue;
                 }
                 next();
@@ -255,11 +249,9 @@
         });
     });
 
-
     submit(function (next) {
         try {
             var config = GM_getValue('filterconfig', { l1: minlabel - 1, l2: maxlabel, rate1: 0, rate2: 100, age1: 0, age2: 110 });
-
             $('body').append("<div id='filterdialog' title='Teacher Filter'>当前可选教师<span id='tcount'>28</span>位 <div id='buttons'><button id='asc' title='当前为降序，点击后按升序排列'>升序</button><button id='desc' title='当前为升序，点击进行降序排列'  style='display:none;'>降序</button><button title='清空教师信息缓存，并重新搜索'>清除缓存</button> <a>去提建议和BUG</a><a>？</a></div><br />有效经验值 <span id='_tLabelCount' /><br /><div id='tlabelslider'></div>好评率 <span id='_thumbupRate'/><br /><div id='thumbupRateslider'></div>年龄 <span id='_tAge' /><br /><div id='tAgeSlider'></div></div>");
             $('body').append("<div id='wwwww' style='display:none;'></div>"); //这是一个奇怪的BUG on jqueryui. 如果不多额外添加一个，则dialog无法弹出。
             $('#filterdialog').dialog({ 'width': '360px' });
@@ -268,7 +260,7 @@
                 range: true,
                 min: minlabel - 1,
                 max: maxlabel,
-                values: [config.l1 < minlabel - 1 ? minlabel - 1 : config.l1, config.l2 > maxlabel ? maxlabel : config.l2],
+                values: [config.l1 < minlabel - 1 ? minlabel - 1 : config.l1, maxlabel],
                 slide: function (event, ui) {
                     $('#_tLabelCount').html(ui.values[0] + " - " + ui.values[1]);
                 },
@@ -279,7 +271,7 @@
                 range: true,
                 min: 0,
                 max: 100,
-                values: [config.rate1, config.rate2],
+                values: [config.rate1, 100],
                 slide: function (event, ui) {
                     $('#_thumbupRate').html(ui.values[0] + "% - " + ui.values[1] + '%');
                 },
@@ -340,7 +332,6 @@
         sortByIndicator(desc);
         next();
     });
-
     submit(function (next) {
         $('.s-t-list').before($(".s-t-page").prop('outerHTML'));
         $('#filterdialog').dialog("open");
