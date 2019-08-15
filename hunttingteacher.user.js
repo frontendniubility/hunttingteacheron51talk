@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         辅助选老师-有效经验值|好评率|年龄|Top 5
-// @version      0.1.16
+// @version      0.1.17
 // @namespace    https://github.com/niubilityfrontend
 // @description  51Talk.辅助选老师-有效经验值|好评率|年龄|Top 5；有效经验值=所有标签数量相加后除以5；好评率=好评数/总评论数；年龄根据你的喜好选择。
 // @author       jimbo
@@ -166,14 +166,15 @@
             .attr('label', tinfo.label)
             .attr('indicator', tinfo.indicator);
     }
-    function executeFilters() {
+    function executeFilters(nosaveconfig) {
         var l1 = $("#tlabelslider").slider('values', 0);
         var l2 = $("#tlabelslider").slider('values', 1);
         var rate1 = $("#thumbupRateslider").slider('values', 0);
         var rate2 = $("#thumbupRateslider").slider('values', 1);
         var age1 = $("#tAgeSlider").slider('values', 0);
         var age2 = $("#tAgeSlider").slider('values', 1);
-        GM_setValue('filterconfig', { l1, l2, rate1, rate2, age1, age2 });
+        if (!nosaveconfig)
+            GM_setValue('filterconfig', { l1, l2, rate1, rate2, age1, age2 });
         let tcount = 0;
         $.each($('.item'), function (i, item) {
             var node = $(item);
@@ -185,9 +186,11 @@
             if ((tinfo.thumbupRate >= rate1 && tinfo.thumbupRate <= rate2) && tinfo.label >= l1 && tinfo.label <= l2 && tinfo.age >= age1 && tinfo.age <= age2) {
                 if (node.is(':hidden')) {　　//如果node是隐藏的则显示node元素，否则隐藏
                     node.show();
-                    node.animate({left:"+=50"
-                    },3500).animate({left:"-=50"
-                    },3500);
+                    node.animate({
+                        left: "+=50"
+                    }, 3500).animate({
+                        left: "-=50"
+                    }, 3500);
                 } else {
                     //nothing todo
                 }
@@ -303,7 +306,9 @@
                 }).end().eq(2).button({ icon: 'ui-icon-refresh' })//reload
                 .click(function () {
                     $.each(GM_listValues(), function (i, item) {
-                        GM_deleteValue(item);
+                        if (item.start('tinfo-')) {
+                            GM_deleteValue(item);
+                        }
                     });
                     $('.go-search').click();
                 }).end().eq(3).button({ icon: 'ui-icon-arrow-4-diag', showLabel: false })//submit suggestion
@@ -328,7 +333,7 @@
         } catch (ex) {
             console.log(ex + "");
         }
-        executeFilters();
+        executeFilters(true);
         sortByIndicator(desc);
         next();
     });
