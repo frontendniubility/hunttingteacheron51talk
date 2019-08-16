@@ -1,7 +1,11 @@
 
 // ==UserScript==
 // @name         辅助选老师-有效经验值|好评率|年龄|Top 5
+<<<<<<< HEAD
 // @version      0.1.23
+=======
+// @version      0.1.20
+>>>>>>> 64b4425c33f288ef821929647b0e01829dafe29e
 // @namespace    https://github.com/niubilityfrontend
 // @description  51Talk.辅助选老师-有效经验值|好评率|年龄|Top 5；有效经验值=所有标签数量相加后除以5；好评率=好评数/总评论数；年龄根据你的喜好选择。
 // @author       jimbo
@@ -264,9 +268,17 @@
     submit(function (next) {
         try {
             var config = GM_getValue('filterconfig', { l1: minlabel - 1, l2: maxlabel, rate1: 0, rate2: 100, age1: 0, age2: 110 });
+<<<<<<< HEAD
             $('body').append("<div id='filterdialog' title='Teacher Filter'>当前可选教师<span id='tcount'>28</span>位 <div id='buttons'><button id='asc' title='当前为降序，点击后按升序排列'>升序</button><button id='desc' title='当前为升序，点击进行降序排列'  style='display:none;'>降序</button>&nbsp;<input id='tinfoexprhours' title='缓存过期时间（小时）'>&nbsp;<button title='清空教师信息缓存，并重新搜索'>清除缓存</button>&nbsp;<a>去提建议和BUG</a>&nbsp;<a>?</a>&nbsp;</div><br />有效经验值 <span id='_tLabelCount' /><br /><div id='tlabelslider'></div>好评率 <span id='_thumbupRate'/><br /><div id='thumbupRateslider'></div>年龄 <span id='_tAge' /><br /><div id='tAgeSlider'></div></div>");
             $('body').append("<div id='wwwww'>已加载选课辅助插件。</div>"); //这是一个奇怪的BUG on jqueryui. 如果不多额外添加一个，则dialog无法弹出。
                    $("#tlabelslider").slider({
+=======
+            $('body').append("<div id='filterdialog' title='Teacher Filter'>当前可选教师<span id='tcount'>28</span>位 <div id='buttons'><button id='asc' title='当前为降序，点击后按升序排列'>升序</button><button id='desc' title='当前为升序，点击进行降序排列'  style='display:none;'>降序</button><input id='tinfoexprhours' title='缓存小时数'><button title='清空教师信息缓存，并重新搜索'>清除缓存</button> <a>去提建议和BUG</a><a>？</a></div><br />有效经验值 <span id='_tLabelCount' /><br /><div id='tlabelslider'></div>好评率 <span id='_thumbupRate'/><br /><div id='thumbupRateslider'></div>年龄 <span id='_tAge' /><br /><div id='tAgeSlider'></div></div>");
+            $('body').append("<div id='wwwww'>已加载选课辅助插件。</div>"); //这是一个奇怪的BUG on jqueryui. 如果不多额外添加一个，则dialog无法弹出。
+            $('#filterdialog').dialog({ 'width': '360px' });
+
+            $("#tlabelslider").slider({
+>>>>>>> 64b4425c33f288ef821929647b0e01829dafe29e
                 range: true,
                 min: minlabel - 1,
                 max: maxlabel,
@@ -333,7 +345,11 @@
                 executeFilters(uifilters);
             });
 
+<<<<<<< HEAD
             $('#buttons button,#buttons input,#buttons a').eq(0).button({ icon: 'ui-icon-arrowthick-1-n',showLabel:false })//升序
+=======
+            $('#buttons button,#buttons input,#buttons a').eq(0).button({ icon: 'ui-icon-arrowthick-1-n' })//升序
+>>>>>>> 64b4425c33f288ef821929647b0e01829dafe29e
                 .click(function () {
                     $('#desc').show();
                     $(this).hide();
@@ -348,10 +364,16 @@
                     spin: function (event, ui) {
                         GM_setValue('tinfoexprhours', ui.value)
                     }
+<<<<<<< HEAD
                 })// 缓存过期时间（小时）
                 .css({width:'20px'})
                 .val(GM_getValue('tinfoexprhours', 12))
                 .end().eq(3).button({ icon: 'ui-icon-trash' ,showLabel:false})//清空缓存
+=======
+                }).css({width:'20px'})
+                .val(GM_getValue('tinfoexprhours', 12))
+                .end().eq(3).button({ icon: 'ui-icon-refresh' })//reload
+>>>>>>> 64b4425c33f288ef821929647b0e01829dafe29e
                 .click(function () {
                     $.each(GM_listValues(), function (i, item) {
                         if (item.startsWith('tinfo-')) {
@@ -359,10 +381,17 @@
                         }
                     });
                     $('.go-search').click();
+<<<<<<< HEAD
                 }).end().eq(4).button({ icon: 'ui-icon-comment', showLabel: false })//submit suggestion
                 .prop('href', 'https://github.com/niubilityfrontend/huttingtecaheron51talk/issues/new?assignees=&labels=&template=feature_request.md&title=')
                 .prop('target', '_blank')
                 .end().eq(5).button({icon:'ui-icon-help',showLabel:false})//系统帮助
+=======
+                }).end().eq(4).button({ icon: 'ui-icon-arrow-4-diag', showLabel: false })//submit suggestion
+                .prop('href', 'https://github.com/niubilityfrontend/huttingtecaheron51talk/issues/new?assignees=&labels=&template=feature_request.md&title=')
+                .prop('target', '_blank')
+                .end().eq(5).button({})
+>>>>>>> 64b4425c33f288ef821929647b0e01829dafe29e
                 .prop('href', 'https://github.com/niubilityfrontend/huttingtecaheron51talk/blob/master/README.md')
                 .prop('target', '_blank');
 
@@ -385,8 +414,12 @@
     submit(function (next) {
         $('.s-t-list').before($(".s-t-page").prop('outerHTML'));
         sortByIndicator(desc);
+<<<<<<< HEAD
          $('#filterdialog').dialog({ 'width': '360px' });
+=======
+>>>>>>> 64b4425c33f288ef821929647b0e01829dafe29e
         $('#filterdialog').parent().scrollFix();
+        $('#filterdialog').dialog("open");
         next();
     });
 })();
