@@ -1,6 +1,7 @@
+
 // ==UserScript==
 // @name         辅助选老师-有效经验值|好评率|年龄|Top 5
-// @version      0.1.18
+// @version      0.1.23
 // @namespace    https://github.com/niubilityfrontend
 // @description  51Talk.辅助选老师-有效经验值|好评率|年龄|Top 5；有效经验值=所有标签数量相加后除以5；好评率=好评数/总评论数；年龄根据你的喜好选择。
 // @author       jimbo
@@ -34,13 +35,10 @@
                     p, r, l = that.offset().left;
                 dir = dir == "bottom" ? dir : "top"; //默认滚动方向向下
                 if (window.XMLHttpRequest) { //非ie6用fixed
-
-
                     function getHeight() { //>=0表示上面的滚动高度大于等于目标高度
                         return (document.documentElement.scrollTop || document.body.scrollTop) + height - that.offset().top;
                     }
                     $(window).scroll(function () {
-                        $('#filterdialog').dialog("open");
                         if (oldHeight === false) {
                             if ((getHeight() >= 0 && dir == "top") || (getHeight() <= 0 && dir == "bottom")) {
                                 oldHeight = that.offset().top - height;
@@ -130,6 +128,10 @@
     String.prototype.toFloat = function () {
         return parseFloat(this);
     };
+    String.prototype.toInt = function () {
+        return parseint(this);
+    };
+
     String.prototype.startsWith = function (str) {
         return this.slice(0, str.length) == str;
     };
@@ -204,7 +206,7 @@
         });
         $('#tcount').text(tcount);
     }
-    let configExprMilliseconds = 43200000; //1000*60*60*12; 缓存12小时
+    let configExprMilliseconds = 1000*60*60*GM_getValue('tinfoexprhours',12); //缓存12小时
     $(".item").each(function (index, el) {
         submit(function (next) {
             let jqel = $(el);
@@ -212,7 +214,7 @@
             var tinfokey = 'tinfo-' + tid;
             var tinfoexpirekey = 'tinfoexpire-' + tid;
             var tinfoexpire = GM_getValue(tinfoexpirekey, new Date().getTime());
-            if (  new Date().getTime()- tinfoexpire<configExprMilliseconds) {
+            if (new Date().getTime() - tinfoexpire < configExprMilliseconds) {
                 var tinfo = GM_getValue(tinfokey);
                 if (tinfo) {
                     updateTeacherinfoToUI(jqel, tinfo);
@@ -262,11 +264,9 @@
     submit(function (next) {
         try {
             var config = GM_getValue('filterconfig', { l1: minlabel - 1, l2: maxlabel, rate1: 0, rate2: 100, age1: 0, age2: 110 });
-            $('body').append("<div id='filterdialog' title='Teacher Filter'>当前可选教师<span id='tcount'>28</span>位 <div id='buttons'><button id='asc' title='当前为降序，点击后按升序排列'>升序</button><button id='desc' title='当前为升序，点击进行降序排列'  style='display:none;'>降序</button><button title='清空教师信息缓存，并重新搜索'>清除缓存</button> <a>去提建议和BUG</a><a>？</a></div><br />有效经验值 <span id='_tLabelCount' /><br /><div id='tlabelslider'></div>好评率 <span id='_thumbupRate'/><br /><div id='thumbupRateslider'></div>年龄 <span id='_tAge' /><br /><div id='tAgeSlider'></div></div>");
-            $('body').append("<div id='wwwww' style='display:none;'></div>"); //这是一个奇怪的BUG on jqueryui. 如果不多额外添加一个，则dialog无法弹出。
-            $('#filterdialog').dialog({ 'width': '360px' });
-            console.log('shown dialog.');
-            $("#tlabelslider").slider({
+            $('body').append("<div id='filterdialog' title='Teacher Filter'>当前可选教师<span id='tcount'>28</span>位 <div id='buttons'><button id='asc' title='当前为降序，点击后按升序排列'>升序</button><button id='desc' title='当前为升序，点击进行降序排列'  style='display:none;'>降序</button>&nbsp;<input id='tinfoexprhours' title='缓存过期时间（小时）'>&nbsp;<button title='清空教师信息缓存，并重新搜索'>清除缓存</button>&nbsp;<a>去提建议和BUG</a>&nbsp;<a>?</a>&nbsp;</div><br />有效经验值 <span id='_tLabelCount' /><br /><div id='tlabelslider'></div>好评率 <span id='_thumbupRate'/><br /><div id='thumbupRateslider'></div>年龄 <span id='_tAge' /><br /><div id='tAgeSlider'></div></div>");
+            $('body').append("<div id='wwwww'>已加载选课辅助插件。</div>"); //这是一个奇怪的BUG on jqueryui. 如果不多额外添加一个，则dialog无法弹出。
+                   $("#tlabelslider").slider({
                 range: true,
                 min: minlabel - 1,
                 max: maxlabel,
@@ -333,17 +333,25 @@
                 executeFilters(uifilters);
             });
 
-            $('#buttons button,#buttons a').eq(0).button({ icon: 'ui-icon-arrowthick-1-n' })//升序
+            $('#buttons button,#buttons input,#buttons a').eq(0).button({ icon: 'ui-icon-arrowthick-1-n',showLabel:false })//升序
                 .click(function () {
                     $('#desc').show();
                     $(this).hide();
                     sortByIndicator(asc);
-                }).end().eq(1).button({ icon: 'ui-icon-arrowthick-1-s' })//降序
+                }).end().eq(1).button({ icon: 'ui-icon-arrowthick-1-s',showLabel:false })//降序
                 .click(function () {
                     $('#asc').show();
                     $(this).hide();
                     sortByIndicator(desc);
-                }).end().eq(2).button({ icon: 'ui-icon-refresh' })//reload
+                }).end().eq(2).spinner({
+                    min:0,
+                    spin: function (event, ui) {
+                        GM_setValue('tinfoexprhours', ui.value)
+                    }
+                })// 缓存过期时间（小时）
+                .css({width:'20px'})
+                .val(GM_getValue('tinfoexprhours', 12))
+                .end().eq(3).button({ icon: 'ui-icon-trash' ,showLabel:false})//清空缓存
                 .click(function () {
                     $.each(GM_listValues(), function (i, item) {
                         if (item.startsWith('tinfo-')) {
@@ -351,10 +359,10 @@
                         }
                     });
                     $('.go-search').click();
-                }).end().eq(3).button({ icon: 'ui-icon-arrow-4-diag', showLabel: false })//submit suggestion
+                }).end().eq(4).button({ icon: 'ui-icon-comment', showLabel: false })//submit suggestion
                 .prop('href', 'https://github.com/niubilityfrontend/huttingtecaheron51talk/issues/new?assignees=&labels=&template=feature_request.md&title=')
                 .prop('target', '_blank')
-                .end().eq(4).button({})
+                .end().eq(5).button({icon:'ui-icon-help',showLabel:false})//系统帮助
                 .prop('href', 'https://github.com/niubilityfrontend/huttingtecaheron51talk/blob/master/README.md')
                 .prop('target', '_blank');
 
@@ -364,19 +372,20 @@
             var rate2 = $("#thumbupRateslider").slider('values', 1);
             var age1 = $("#tAgeSlider").slider('values', 0);
             var age2 = $("#tAgeSlider").slider('values', 1);
+            executeFilters({ l1, l2, rate1, rate2, age1, age2 });
             $('#_tAge').html(age1 + " - " + age2);
             $('#_tLabelCount').html(l1 + " - " + l2);
             $('#_thumbupRate').html(rate1 + "% - " + rate2 + '%');
+
         } catch (ex) {
             console.log(ex + "");
         }
-        executeFilters(true);
-        sortByIndicator(desc);
         next();
     });
     submit(function (next) {
         $('.s-t-list').before($(".s-t-page").prop('outerHTML'));
-        $('#filterdialog').dialog("open");
+        sortByIndicator(desc);
+         $('#filterdialog').dialog({ 'width': '360px' });
         $('#filterdialog').parent().scrollFix();
         next();
     });
