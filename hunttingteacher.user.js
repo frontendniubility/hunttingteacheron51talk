@@ -17,6 +17,7 @@
 // @grant        GM_deleteValue
 // @require      http://code.jquery.com/jquery-3.4.1.min.js
 // @require      https://code.jquery.com/ui/1.12.1/jquery-ui.min.js
+// @require      https://cdnjs.cloudflare.com/ajax/libs/pace/1.0.2/pace.min.js
 // ==/UserScript==
 (function () {
     'use strict';
@@ -95,6 +96,12 @@
         + 'href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css" '
         + 'rel="stylesheet" type="text/css">'
     );
+     $("head").append(
+        '<link '
+        + 'href="https://cdnjs.cloudflare.com/ajax/libs/pace/1.0.2/themes/black/pace-theme-barber-shop.min.css" '
+        + 'rel="stylesheet" type="text/css">'
+    );
+    
     $("head").append('<style type="text/css">'
         + '.search-teachers .s-t-list .item-time-list {margin-top:315px;}'
         + ' .search-teachers .s-t-list .item {   height: 679px; }'
