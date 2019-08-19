@@ -39,6 +39,7 @@
         + ' .search-teachers .s-t-list .item {   height: 679px; }'
         + '.search-teachers .s-t-list .s-t-content { margin-right: 0px;}'
         + '.search-teachers { width: 100%; }'
+        + '.teacher-name {line-height: 15px;}'
         + '.search-teachers .s-t-list .item { height: auto;  margin-right: 5px; margin-bottom: 5px; }'
         + '.pace {'
         + '  -webkit-pointer-events: none;'
@@ -195,19 +196,25 @@
         }
         $.dequeue(document);
     };
-    let maxlabel = 0, minlabel = 9999999;
+    let maxlabel = 0, minlabel = 9999999, maxfc = 0, minfc = 999999;
     function updateTeacherinfoToUI(jqel, tinfo) {
         maxlabel = (tinfo.label > maxlabel) ? tinfo.label : maxlabel;
         minlabel = (tinfo.label < minlabel) ? tinfo.label : minlabel;
+        maxfc = (tinfo.favoritesCount > maxfc) ? tinfo.favoritesCount : maxfc;
+        minfc = (tinfo.favoritesCount < minfc) ? tinfo.favoritesCount : minfc;
         jqel.attr("teacherinfo", JSON.stringify(tinfo));
         jqel.find(".teacher-name")
             .html(jqel.find(".teacher-name").text() + "<br />[" + tinfo.label + "x" + tinfo.thumbupRate + "%=" + tinfo.indicator / 100 + "]");
-        jqel.attr('thumbup', tinfo.thumbup)
-            .attr('thumbdown', tinfo.thumbdown)
-            .attr('thumbupRate', tinfo.thumbupRate)
-            .attr('age', tinfo.age)
-            .attr('label', tinfo.label)
+ jqel.find(".teacher-age")
+            .html(jqel.find(".teacher-age").text() + " | <label title='被收藏数'>" +tinfo.favoritesCount+ "</label>");
+
+        jqel//.attr('thumbup', tinfo.thumbup)
+            //.attr('thumbdown', tinfo.thumbdown)
+            //.attr('thumbupRate', tinfo.thumbupRate)
+            //.attr('age', tinfo.age)
+            //.attr('label', tinfo.label)
             .attr('indicator', tinfo.indicator);
+
     }
     function executeFilters(uifilters) {
         let tcount = 0, hidecount = 0;
@@ -220,7 +227,8 @@
             var tinfo = JSON.parse(tinfojson);
             if ((tinfo.thumbupRate >= uifilters.rate1 && tinfo.thumbupRate <= uifilters.rate2)
                 && tinfo.label >= uifilters.l1 && tinfo.label <= uifilters.l2
-                && tinfo.age >= uifilters.age1 && tinfo.age <= uifilters.age2) {
+                && tinfo.age >= uifilters.age1 && tinfo.age <= uifilters.age2
+                && tinfo.favoritesCount >= uifilters.fc1 && tinfo.favoritesCount <= uifilters.fc2) {
                 if (node.is(':hidden')) {　　//如果node是隐藏的则显示node元素，否则隐藏
                     node.show();
                     node.animate({
@@ -269,6 +277,7 @@
                             var thumbup = Number($(".evaluate-content-left span:eq(1)", r).text().match(num).clean("")[0]);
                             var thumbdown = Number($(".evaluate-content-left span:eq(2)", r).text().match(num).clean("")[0]);
                             var thumbupRate = ((thumbup + 0.00001) / (thumbdown + thumbup)).toFixed(2) * 100;
+                            var favoritesCount = Number($(".clear-search", r).text().match(num).clean("")[0]);
                             var age = jqel.find(".teacher-age").text().match(num).clean("")[0];
                             var label = (function () {
                                 let j_len = jqel.find(".label").text().match(num).clean("").length; let l = 0;
@@ -278,7 +287,7 @@
                                 l = Math.ceil(l / 5);
                                 return l;
                             })();
-                            var tinfo = { 'thumbup': thumbup, 'thumbdown': thumbdown, 'thumbupRate': thumbupRate, 'age': age, 'label': label, 'indicator': label * thumbupRate };
+                            var tinfo = { 'thumbup': thumbup, 'thumbdown': thumbdown, 'thumbupRate': thumbupRate, 'age': age, 'label': label, 'indicator': label * thumbupRate, 'favoritesCount': favoritesCount };
                             GM_setValue(tinfoexpirekey, new Date().getTime());
                             GM_setValue(tinfokey, tinfo);
                             updateTeacherinfoToUI(jqel, tinfo);
@@ -297,11 +306,28 @@
             });
         });
     });
-
+    function getUiFilters() {
+        var l1 = $("#tlabelslider").slider('values', 0);
+        var l2 = $("#tlabelslider").slider('values', 1);
+        var rate1 = $("#thumbupRateslider").slider('values', 0);
+        var rate2 = $("#thumbupRateslider").slider('values', 1);
+        var age1 = $("#tAgeSlider").slider('values', 0);
+        var age2 = $("#tAgeSlider").slider('values', 1);
+        var fc1 = $("#fcSlider").slider('values', 0);
+        var fc2 = $("#fcSlider").slider('values', 1);
+        return { l1, l2, rate1, rate2, age1, age2, fc1, fc2 };
+    }
     submit(function (next) {
         try {
             var config = GM_getValue('filterconfig', { l1: 300, l2: maxlabel, rate1: 96, rate2: 100, age1: 0, age2: 110 });
-            $('body').append("<div id='filterdialog' title='Teacher Filter'>当前可选<span id='tcount'>28</span>位,被折叠<span id='thidecount'></span>位。 <div id='buttons'><button id='asc' title='当前为降序，点击后按升序排列'>升序</button><button id='desc' title='当前为升序，点击进行降序排列'  style='display:none;'>降序</button>&nbsp;<input id='tinfoexprhours' title='缓存过期时间（小时）'>&nbsp;<button title='清空教师信息缓存，并重新搜索'>清除缓存</button>&nbsp;<a>去提建议和BUG</a>&nbsp;<a>?</a>&nbsp;</div><br />有效经验值 <span id='_tLabelCount' /><br /><div id='tlabelslider'></div>好评率 <span id='_thumbupRate'/><br /><div id='thumbupRateslider'></div>年龄 <span id='_tAge' /><br /><div id='tAgeSlider'></div></div>");
+            $('body').append("<div id='filterdialog' title='Teacher Filter'>"
+                + "当前可选<span id='tcount' />位,被折叠<span id='thidecount' />位。 "
+                + "<div id='buttons'><button id='asc' title='当前为降序，点击后按升序排列'>升序</button><button id='desc' title='当前为升序，点击进行降序排列'  style='display:none;'>降序</button>&nbsp;<input id='tinfoexprhours' title='缓存过期时间（小时）'>&nbsp;<button title='清空教师信息缓存，并重新搜索'>清除缓存</button>&nbsp;<a>去提建议和BUG</a>&nbsp;<a>?</a>&nbsp;</div>"
+                + "<br />有效经验值 <span id='_tLabelCount' /><br /><div id='tlabelslider'></div>"
+                + "收藏数 <span id='_tfc' /><br /><div id='fcSlider'></div>"
+                + "好评率 <span id='_thumbupRate'/><br /><div id='thumbupRateslider'></div>"
+                + "年龄 <span id='_tAge' /><br /><div id='tAgeSlider'></div>"
+                + "</div>");
             $('body').append("<div id='wwwww'>已加载选课辅助插件。</div>"); //这是一个奇怪的BUG on jqueryui. 如果不多额外添加一个，则dialog无法弹出。
             $("#tlabelslider").slider({
                 range: true,
@@ -314,14 +340,36 @@
             }).on('slidestop', function (event, ui) {
                 var l1 = $("#tlabelslider").slider('values', 0);
                 var l2 = $("#tlabelslider").slider('values', 1);
-                var rate1 = $("#thumbupRateslider").slider('values', 0);
-                var rate2 = $("#thumbupRateslider").slider('values', 1);
-                var age1 = $("#tAgeSlider").slider('values', 0);
-                var age2 = $("#tAgeSlider").slider('values', 1);
-                var uifilters = { l1, l2, rate1, rate2, age1, age2 };
+                var uifilters = getUiFilters();
                 var filterconfig = GM_getValue('filterconfig', uifilters);
                 filterconfig.l1 = l1;
                 filterconfig.l2 = l2;
+                GM_setValue('filterconfig', filterconfig);
+                executeFilters(uifilters);
+            });
+            {//配置信息兼容处理 0.1.25 增加收藏次数
+                var filterconfig = GM_getValue('filterconfig');
+                if (filterconfig && (!filterconfig.fc1 || !filterconfig.fc2)) {
+                    filterconfig.fc1 = minfc;
+                    filterconfig.fc2 = maxfc;
+                    GM_setValue('filterconfig', filterconfig);
+                }
+            }
+            $("#fcSlider").slider({
+                range: true,
+                min: minfc,
+                max: maxfc,
+                values: [config.fc1 < minfc ? minfc : config.fc1, maxfc],
+                slide: function (event, ui) {
+                    $('#_tfc').html(ui.values[0] + " - " + ui.values[1]);
+                },
+            }).on('slidestop', function (event, ui) {
+                var fc1 = $("#fcSlider").slider('values', 0);
+                var fc2 = $("#fcSlider").slider('values', 1);
+                var uifilters = getUiFilters();
+                var filterconfig = GM_getValue('filterconfig', uifilters);
+                filterconfig.fc1 = fc1;
+                filterconfig.fc2 = fc2;
                 GM_setValue('filterconfig', filterconfig);
                 executeFilters(uifilters);
             });
@@ -334,13 +382,9 @@
                     $('#_thumbupRate').html(ui.values[0] + "% - " + ui.values[1] + '%');
                 },
             }).on('slidestop', function (event, ui) {
-                var l1 = $("#tlabelslider").slider('values', 0);
-                var l2 = $("#tlabelslider").slider('values', 1);
                 var rate1 = $("#thumbupRateslider").slider('values', 0);
                 var rate2 = $("#thumbupRateslider").slider('values', 1);
-                var age1 = $("#tAgeSlider").slider('values', 0);
-                var age2 = $("#tAgeSlider").slider('values', 1);
-                var uifilters = { l1, l2, rate1, rate2, age1, age2 };
+                var uifilters = getUiFilters();
                 var filterconfig = GM_getValue('filterconfig', uifilters);
                 filterconfig.rate1 = rate1;
                 filterconfig.rate2 = rate2;
@@ -356,13 +400,9 @@
                     $('#_tAge').html(ui.values[0] + " - " + ui.values[1]);
                 },
             }).on("slidestop", function (event, ui) {
-                var l1 = $("#tlabelslider").slider('values', 0);
-                var l2 = $("#tlabelslider").slider('values', 1);
-                var rate1 = $("#thumbupRateslider").slider('values', 0);
-                var rate2 = $("#thumbupRateslider").slider('values', 1);
                 var age1 = $("#tAgeSlider").slider('values', 0);
                 var age2 = $("#tAgeSlider").slider('values', 1);
-                var uifilters = { l1, l2, rate1, rate2, age1, age2 };
+                var uifilters = getUiFilters();
                 var filterconfig = GM_getValue('filterconfig', uifilters);
                 filterconfig.age1 = age1;
                 filterconfig.age2 = age2;
@@ -403,17 +443,12 @@
                 .prop('href', 'https://github.com/niubilityfrontend/hunttingteacheron51talk/blob/master/README.md')
                 .prop('target', '_blank');
 
-            var l1 = $("#tlabelslider").slider('values', 0);
-            var l2 = $("#tlabelslider").slider('values', 1);
-            var rate1 = $("#thumbupRateslider").slider('values', 0);
-            var rate2 = $("#thumbupRateslider").slider('values', 1);
-            var age1 = $("#tAgeSlider").slider('values', 0);
-            var age2 = $("#tAgeSlider").slider('values', 1);
-            executeFilters({ l1, l2, rate1, rate2, age1, age2 });
-            $('#_tAge').html(age1 + " - " + age2);
-            $('#_tLabelCount').html(l1 + " - " + l2);
-            $('#_thumbupRate').html(rate1 + "% - " + rate2 + '%');
-
+            var uifilters = getUiFilters();
+            executeFilters(uifilters);
+            $('#_tAge').html(uifilters.age1 + " - " + uifilters.age2);
+            $('#_tLabelCount').html(uifilters.l1 + " - " + uifilters.l2);
+            $('#_thumbupRate').html(uifilters.rate1 + "% - " + uifilters.rate2 + '%');
+            $('#_tfc').html(uifilters.fc1 + " - " + uifilters.fc2 + '');
         } catch (ex) {
             console.log(ex + "");
         }
