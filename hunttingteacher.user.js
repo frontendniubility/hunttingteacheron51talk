@@ -1,7 +1,7 @@
 
 // ==UserScript==
 // @name         辅助选老师-有效经验值|好评率|年龄|Top 5
-// @version      0.1.24
+// @version      0.1.25
 // @namespace    https://github.com/niubilityfrontend
 // @description  51Talk.辅助选老师-有效经验值|好评率|年龄|Top 5；有效经验值=所有标签数量相加后除以5；好评率=好评数/总评论数；年龄根据你的喜好选择。
 // @author       jimbo
@@ -21,6 +21,55 @@
 // ==/UserScript==
 (function () {
     'use strict';
+    Pace.Options = {
+        ajax: false, // disabled
+        document: false, // disabled
+        eventLag: false, // disabled
+        elements: {
+            selectors: ['#filterdialog']
+        }
+    };
+    $("head").append(
+        '<link '
+        + 'href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css" '
+        + 'rel="stylesheet" type="text/css">'
+    );
+    $("head").append(
+        '<link '
+        + 'href="https://cdnjs.cloudflare.com/ajax/libs/pace/1.0.2/themes/black/pace-theme-barber-shop.min.css" '
+        + 'rel="stylesheet" type="text/css">'
+    );
+
+    $("head").append('<style type="text/css">'
+        + '.search-teachers .s-t-list .item-time-list {margin-top:315px;}'
+        + ' .search-teachers .s-t-list .item {   height: 679px; }'
+        + '.search-teachers .s-t-list .s-t-content { margin-right: 0px;}'
+        + '.search-teachers { width: 100%; }'
+        + '.search-teachers .s-t-list .item { height: auto;  margin-right: 5px; margin-bottom: 5px; }'
+        + '.pace {'
+        + '  -webkit-pointer-events: none;'
+        + '  pointer-events: none;'
+        + ''
+        + '  -webkit-user-select: none;'
+        + '  -moz-user-select: none;'
+        + '  user-select: none;'
+        + '}'
+        + ''
+        + '.pace-inactive {'
+        + '  display: none;'
+        + '}'
+        + ''
+        + '.pace .pace-progress {'
+        + '  background: #29d;'
+        + '  position: fixed;'
+        + '  z-index: 2000;'
+        + '  top: 0;'
+        + '  right: 100%;'
+        + '  width: 100%;'
+        + '  height: 2px;'
+        + '}'
+        + ''
+        + '</style>');
     ; (function ($) {
         jQuery.fn.scrollFix = function (height, dir) {
             height = height || 0;
@@ -91,24 +140,6 @@
         };
     })(jQuery);
 
-    $("head").append(
-        '<link '
-        + 'href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css" '
-        + 'rel="stylesheet" type="text/css">'
-    );
-     $("head").append(
-        '<link '
-        + 'href="https://cdnjs.cloudflare.com/ajax/libs/pace/1.0.2/themes/black/pace-theme-barber-shop.min.css" '
-        + 'rel="stylesheet" type="text/css">'
-    );
-    
-    $("head").append('<style type="text/css">'
-        + '.search-teachers .s-t-list .item-time-list {margin-top:315px;}'
-        + ' .search-teachers .s-t-list .item {   height: 679px; }'
-        + '.search-teachers .s-t-list .s-t-content { margin-right: 0px;}'
-        + '.search-teachers { width: 100%; }'
-        + '.search-teachers .s-t-list .item { height: auto;  margin-right: 5px; margin-bottom: 5px; }'
-        + '</style>');
 
     $.each($(".item-top-cont"), function (i, item) {
         item.innerHTML = item.innerHTML.replace('<!--', '').replace('-->', '');
@@ -185,7 +216,7 @@
             .attr('indicator', tinfo.indicator);
     }
     function executeFilters(uifilters) {
-        let tcount = 0,hidecount=0;
+        let tcount = 0, hidecount = 0;
         $.each($('.item'), function (i, item) {
             var node = $(item);
             var tinfojson = node.attr("teacherinfo");
@@ -218,54 +249,57 @@
     let configExprMilliseconds = 1000 * 60 * 60 * GM_getValue('tinfoexprhours', 12); //缓存12小时
     $(".item").each(function (index, el) {
         submit(function (next) {
-            let jqel = $(el);
-            let tid = jqel.find(".teacher-details-link a").attr('href').replace("https://www.51talk.com/TeacherNew/info/", "").replace('http://www.51talk.com/TeacherNew/info/', '');
-            var tinfokey = 'tinfo-' + tid;
-            var tinfoexpirekey = 'tinfoexpire-' + tid;
-            var tinfoexpire = GM_getValue(tinfoexpirekey, new Date().getTime());
-            if (new Date().getTime() - tinfoexpire < configExprMilliseconds) {
-                var tinfo = GM_getValue(tinfokey);
-                if (tinfo) {
-                    updateTeacherinfoToUI(jqel, tinfo);
-                    next();
-                    return true;
-                }
-            }
-            // ajax 请求一定要包含在一个函数中
-            var start = (new Date()).getTime();
-            let num = /[0-9]*/g;
-            $.ajax({
-                url: window.location.protocol + '//www.51talk.com/TeacherNew/teacherComment?tid=' + tid + '&type=bad&has_msg=1',
-                type: 'GET',
-                dateType: 'html',
-                success: function (r) {
-                    if ($(".evaluate-content-left span", r) && $(".evaluate-content-left span", r).length >= 3) {
-                        var thumbup = Number($(".evaluate-content-left span:eq(1)", r).text().match(num).clean("")[0]);
-                        var thumbdown = Number($(".evaluate-content-left span:eq(2)", r).text().match(num).clean("")[0]);
-                        var thumbupRate = ((thumbup + 0.00001) / (thumbdown + thumbup)).toFixed(2) * 100;
-                        var age = jqel.find(".teacher-age").text().match(num).clean("")[0];
-                        var label = (function () {
-                            let j_len = jqel.find(".label").text().match(num).clean("").length; let l = 0;
-                            for (let j = 0; j < j_len; j++) {
-                                l += Number(jqel.find(".label").text().match(num).clean("")[j]);
-                            }
-                            l = Math.ceil(l / 5);
-                            return l;
-                        })();
-                        var tinfo = { 'thumbup': thumbup, 'thumbdown': thumbdown, 'thumbupRate': thumbupRate, 'age': age, 'label': label, 'indicator': label * thumbupRate };
-                        GM_setValue(tinfoexpirekey, new Date().getTime());
-                        GM_setValue(tinfokey, tinfo);
+            Pace.track(function () {
+                let jqel = $(el);
+                let tid = jqel.find(".teacher-details-link a").attr('href').replace("https://www.51talk.com/TeacherNew/info/", "").replace('http://www.51talk.com/TeacherNew/info/', '');
+                var tinfokey = 'tinfo-' + tid;
+                var tinfoexpirekey = 'tinfoexpire-' + tid;
+                var tinfoexpire = GM_getValue(tinfoexpirekey, new Date().getTime());
+                if (new Date().getTime() - tinfoexpire < configExprMilliseconds) {
+                    var tinfo = GM_getValue(tinfokey);
+                    if (tinfo) {
                         updateTeacherinfoToUI(jqel, tinfo);
-                    } else {
-                        console.log('Teacher s detail info getting error:' + JSON.stringify(jqel) + ",error info:" + r);
+                        next();
+                        return true;
                     }
-                },
-                error: function (data) { console.log("xhr error when getting teacher " + JSON.stringify(jqel) + ",error msg:" + JSON.stringify(data)); }
-            }).always(function () {
-                while ((new Date()).getTime() - start < 600) {
-                    continue;
                 }
-                next();
+                // ajax 请求一定要包含在一个函数中
+                var start = (new Date()).getTime();
+                let num = /[0-9]*/g;
+                $.ajax({
+                    url: window.location.protocol + '//www.51talk.com/TeacherNew/teacherComment?tid=' + tid + '&type=bad&has_msg=1',
+                    type: 'GET',
+                    dateType: 'html',
+                    success: function (r) {
+                        if ($(".evaluate-content-left span", r) && $(".evaluate-content-left span", r).length >= 3) {
+                            var thumbup = Number($(".evaluate-content-left span:eq(1)", r).text().match(num).clean("")[0]);
+                            var thumbdown = Number($(".evaluate-content-left span:eq(2)", r).text().match(num).clean("")[0]);
+                            var thumbupRate = ((thumbup + 0.00001) / (thumbdown + thumbup)).toFixed(2) * 100;
+                            var age = jqel.find(".teacher-age").text().match(num).clean("")[0];
+                            var label = (function () {
+                                let j_len = jqel.find(".label").text().match(num).clean("").length; let l = 0;
+                                for (let j = 0; j < j_len; j++) {
+                                    l += Number(jqel.find(".label").text().match(num).clean("")[j]);
+                                }
+                                l = Math.ceil(l / 5);
+                                return l;
+                            })();
+                            var tinfo = { 'thumbup': thumbup, 'thumbdown': thumbdown, 'thumbupRate': thumbupRate, 'age': age, 'label': label, 'indicator': label * thumbupRate };
+                            GM_setValue(tinfoexpirekey, new Date().getTime());
+                            GM_setValue(tinfokey, tinfo);
+                            updateTeacherinfoToUI(jqel, tinfo);
+                        } else {
+                            console.log('Teacher s detail info getting error:' + JSON.stringify(jqel) + ",error info:" + r);
+                        }
+                    },
+                    error: function (data) { console.log("xhr error when getting teacher " + JSON.stringify(jqel) + ",error msg:" + JSON.stringify(data)); }
+                }).always(function () {
+                    while ((new Date()).getTime() - start < 600) {
+                        continue;
+                    }
+                    next();
+                });
+
             });
         });
     });
