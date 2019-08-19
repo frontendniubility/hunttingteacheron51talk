@@ -6,7 +6,7 @@
 // @description  51Talk.辅助选老师-有效经验值|好评率|年龄|Top 5；有效经验值=所有标签数量相加后除以5；好评率=好评数/总评论数；年龄根据你的喜好选择。
 // @author       jimbo
 // @license      GPLv3
-// @supportURL   https://github.com/niubilityfrontend/huttingtecaheron51talk
+// @supportURL   https://github.com/niubilityfrontend/hunttingteacheron51talk
 // @match        https://www.51talk.com/ReserveNew/index*
 // @match        http://www.51talk.com/ReserveNew/index*
 // @icon         https://avatars3.githubusercontent.com/u/25388328
@@ -397,10 +397,10 @@
                     });
                     $('.go-search').click();
                 }).end().eq(4).button({ icon: 'ui-icon-comment', showLabel: false })//submit suggestion
-                .prop('href', 'https://github.com/niubilityfrontend/huttingtecaheron51talk/issues/new?assignees=&labels=&template=feature_request.md&title=')
+                .prop('href', 'https://github.com/niubilityfrontend/hunttingteacheron51talk/issues/new?assignees=&labels=&template=feature_request.md&title=')
                 .prop('target', '_blank')
                 .end().eq(5).button({ icon: 'ui-icon-help', showLabel: false })//系统帮助
-                .prop('href', 'https://github.com/niubilityfrontend/huttingtecaheron51talk/blob/master/README.md')
+                .prop('href', 'https://github.com/niubilityfrontend/hunttingteacheron51talk/blob/master/README.md')
                 .prop('target', '_blank');
 
             var l1 = $("#tlabelslider").slider('values', 0);
