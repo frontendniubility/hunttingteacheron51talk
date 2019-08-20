@@ -1,21 +1,21 @@
 // ==UserScript==
-// @name            Super_GM
+// @name            SuperGM
 // @description     Extends the GM_setValue and GM_getValue functions for any javascript variable type. basis on https://userscripts-mirror.org/scripts/source/107941.user.js 
 // @namespace       userscripts.org/users/158640
 // ==/UserScript==
 
-if(! String.prototype.startsWith)
-String.prototype.startsWith = function (str) {
-    return this.slice(0, str.length) == str;
-};
-if(!String.prototype.endsWith )
-String.prototype.endsWith = function (str) {
-    return this.slice(-str.length) == str;
-};
-if(!String.prototype.contains)
-String.prototype.contains = function (str) {
-    return this.indexOf(str) > -1;
-};
+if (!String.prototype.startsWith)
+    String.prototype.startsWith = function (str) {
+        return this.slice(0, str.length) == str;
+    };
+if (!String.prototype.endsWith)
+    String.prototype.endsWith = function (str) {
+        return this.slice(-str.length) == str;
+    };
+if (!String.prototype.contains)
+    String.prototype.contains = function (str) {
+        return this.indexOf(str) > -1;
+    };
 var SuperGM = function (version, _expiredMilliseconds) {
     var versionkeybasic = 'tsharp.org:key:v:';
     var expiredkeybasic = 'tsharp.org:key:e:';
@@ -40,30 +40,12 @@ var SuperGM = function (version, _expiredMilliseconds) {
     if (typeof GM_getValue != "function")
         ReportError('This library requires Greasemonkey! GM_getValue is missing.');
     if (typeof version != 'integer') {
-        ReportError('version should be a integer type if you wana set it.');
+        ReportError('Arg version should be a integer type if you wana set it.');
     }
     if (typeof expiredMilliseconds != 'integer') {
-        ReportError('expiredMilliseconds should be a integer type if you wana set it.');
+        ReportError('Arg expiredMilliseconds should be a integer type if you wana set it.');
     }
 
-    /*--- set ()
-        GM_setValue (http://wiki.greasespot.net/GM_setValue) only stores:
-        strings, booleans, and integers (a limitation of using Firefox
-        preferences for storage).
-
-        This function extends that to allow storing any data type.
-
-        Parameters:
-            varName
-                String: The unique (within this script) name for this value.
-                Should be restricted to valid Javascript identifier characters.
-            varValue
-                Any valid javascript value.  Just note that it is not advisable to
-                store too much data in the Firefox preferences.
-
-        Returns:
-            undefined
-    */
     this.set = function (varName, varValue) {
 
         if (!varName) {
@@ -119,32 +101,6 @@ var SuperGM = function (version, _expiredMilliseconds) {
         }
     }//-- End of set()
 
-
-    /*--- get ()
-        GM_getValue (http://wiki.greasespot.net/GM_getValue) only retieves:
-        strings, booleans, and integers (a limitation of using Firefox
-        preferences for storage).
-
-        This function extends that to allow retrieving any data type -- as
-        long as it was stored with GM_SuperValue.set().
-
-        Parameters:
-            varName
-                String: The property name to get. See GM_SuperValue.set for details.
-            defaultValue
-                Optional. Any value to be returned, when no value has previously
-                been set.
-
-        Returns:
-            When this name has been set...
-                The variable or function value as previously set.
-
-            When this name has not been set, and a default is provided...
-                The value passed in as a default
-
-            When this name has not been set, and default is not provided...
-                undefined
-    */
     this.get = function (varName, defaultValue) {
 
         if (!varName) {
@@ -161,8 +117,11 @@ var SuperGM = function (version, _expiredMilliseconds) {
                 GM_deleteValue(varName);
                 GM_deleteValue(versionKey);
             }
-            if (typeof defaultValue == 'function')
-                return defaultValue();
+            if (typeof defaultValue == 'function') {
+                var varvalue = defaultValue();
+                set(varName, varvalue);
+                return varvalue;
+            }
             else
                 return defaultValue;
         }
