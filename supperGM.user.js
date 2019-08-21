@@ -4,7 +4,7 @@
 // @description     Extends the GM_setValue and GM_getValue functions for any javascript variable type. basis on https://userscripts-mirror.org/scripts/source/107941.user.js 
 // @namespace       userscripts.org/users/158640
 // ==/UserScript==
-
+(function(){
 if (!String.prototype.startsWith)
     String.prototype.startsWith = function (str) {
         return this.slice(0, str.length) == str;
@@ -174,7 +174,7 @@ var SuperGM = function (version, _expiredMilliseconds) {
         GM_deleteValue(varName);
     };
     this.delStartsWith = function (varname) {
-         if (typeof GM_deleteValue != "function")
+        if (typeof GM_deleteValue != "function")
             ReportError('Using delStartsWith function requires Greasemonkey and grant rights for it! GM_deleteValue is missing.');
         if (typeof GM_listValues != "function")
             ReportError('Using delStartsWith function requires Greasemonkey and grant rights for it! GM_listValues is missing.');
@@ -184,4 +184,4 @@ var SuperGM = function (version, _expiredMilliseconds) {
             }
         }
     };
-}
+}})();
