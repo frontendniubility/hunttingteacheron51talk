@@ -105,7 +105,7 @@ var SuperGM = function (version, _expiredMilliseconds) {
                 ReportError('Unknown type in GM_SuperValue.set()!');
                 break;
         }
-    }//-- End of set()
+    };//-- End of set()
 
     this.getOrAdd = function (varName, defaultValue) {
 
@@ -166,7 +166,7 @@ var SuperGM = function (version, _expiredMilliseconds) {
         }
 
         return varValue;
-    }//-- End of get()
+    };//-- End of get()
 
     this.del = function (varname) {
         if (typeof GM_deleteValue != "function")
