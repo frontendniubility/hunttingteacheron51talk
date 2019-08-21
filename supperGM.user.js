@@ -172,7 +172,7 @@ var SuperGM = function (version, _expiredMilliseconds) {
         if (typeof GM_deleteValue != "function")
             ReportError('Using del function requires Greasemonkey and grant rights for it! GM_deleteValue is missing.');
         GM_deleteValue(varName);
-    }
+    };
     this.delStartsWith = function (varname) {
          if (typeof GM_deleteValue != "function")
             ReportError('Using delStartsWith function requires Greasemonkey and grant rights for it! GM_deleteValue is missing.');
@@ -182,6 +182,6 @@ var SuperGM = function (version, _expiredMilliseconds) {
             if (item.startsWith('tinfo-')) {
                 GM_deleteValue(item);
             }
-        });
-    }
+        }
+    };
 }
