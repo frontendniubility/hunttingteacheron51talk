@@ -60,6 +60,11 @@ var SuperGM = function (version, _expiredMilliseconds) {
         GM_setValue(versionKey, version);
         var expiredkey = expiredkeybasic + varName;
         GM_setValue(expiredkey, new Date().getTime());
+
+        if (typeof varValue == 'function') {
+            varValue = varValue();
+        }
+
         switch (typeof varValue) {
             case 'undefined':
                 ReportError('Illegal varValue sent to GM_SuperValue.set().');
@@ -102,7 +107,7 @@ var SuperGM = function (version, _expiredMilliseconds) {
         }
     }//-- End of set()
 
-    this.get = function (varName, defaultValue) {
+    this.getOrAdd = function (varName, defaultValue) {
 
         if (!varName) {
             ReportError('Illegal varName sent to GM_SuperValue.get().');
@@ -123,8 +128,10 @@ var SuperGM = function (version, _expiredMilliseconds) {
                 set(varName, varvalue);
                 return varvalue;
             }
-            else
+            else {
+                set(varName, varvalue);
                 return defaultValue;
+            }
         }
         var expiredkey = expiredkeybasic + varName;
         var expire = GM_getValue(expiredkey);
@@ -160,4 +167,21 @@ var SuperGM = function (version, _expiredMilliseconds) {
 
         return varValue;
     }//-- End of get()
+
+    this.del = function (varname) {
+        if (typeof GM_deleteValue != "function")
+            ReportError('Using del function requires Greasemonkey and grant rights for it! GM_deleteValue is missing.');
+        GM_deleteValue(varName);
+    }
+    this.delStartsWith = function (varname) {
+         if (typeof GM_deleteValue != "function")
+            ReportError('Using delStartsWith function requires Greasemonkey and grant rights for it! GM_deleteValue is missing.');
+        if (typeof GM_listValues != "function")
+            ReportError('Using delStartsWith function requires Greasemonkey and grant rights for it! GM_listValues is missing.');
+        for (var item in GM_listValues()) {
+            if (item.startsWith('tinfo-')) {
+                GM_deleteValue(item);
+            }
+        });
+    }
 }
