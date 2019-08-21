@@ -179,7 +179,7 @@ var SuperGM = function (version, _expiredMilliseconds) {
         if (typeof GM_listValues != "function")
             ReportError('Using delStartsWith function requires Greasemonkey and grant rights for it! GM_listValues is missing.');
         for (var item in GM_listValues()) {
-            if (item.startsWith('tinfo-')) {
+            if (item.startsWith(varname)) {
                 GM_deleteValue(item);
             }
         }
