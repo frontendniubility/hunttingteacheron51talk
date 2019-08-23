@@ -1,7 +1,7 @@
 
 // ==UserScript==
 // @name         辅助选老师-有效经验值|好评率|年龄|Top 5
-// @version      0.1.27
+// @version      0.1.28
 // @namespace    https://github.com/niubilityfrontend
 // @description  51Talk.辅助选老师-有效经验值|好评率|年龄|Top 5；有效经验值=所有标签数量相加后除以5；好评率=好评数/总评论数；年龄根据你的喜好选择。
 // @author       jimbo
@@ -18,6 +18,8 @@
 // @require      http://code.jquery.com/jquery-3.4.1.min.js
 // @require      https://code.jquery.com/ui/1.12.1/jquery-ui.min.js
 // @require      https://cdnjs.cloudflare.com/ajax/libs/pace/1.0.2/pace.min.js
+// @require      https://cdnjs.cloudflare.com/ajax/libs/jqgrid/4.6.0/js/i18n/grid.locale-cn.js
+// @require      https://cdnjs.cloudflare.com/ajax/libs/jqgrid/4.6.0/js/jquery.jqGrid.min.js
 // @require      https://greasyfork.org/scripts/388372-scrollfix/code/scrollfix.js?version=726657
 // ==/UserScript==
 (function () {
@@ -35,6 +37,12 @@
         + 'href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css" '
         + 'rel="stylesheet" type="text/css">'
     );
+    $("head").append(
+        '<link '
+        + 'href="https://cdnjs.cloudflare.com/ajax/libs/jqgrid/4.6.0/css/ui.jqgrid.css" '
+        + 'rel="stylesheet" type="text/css">'
+    );
+
     $("head").append('<style type="text/css">'
         + '.search-teachers .s-t-list .item-time-list {margin-top:315px;}'
         + ' .search-teachers .s-t-list .item {   height: 679px; }'
@@ -179,7 +187,7 @@
         $('#tcount').text(tcount);
         $('#thidecount').text(hidecount);
     }
-    let configExprMilliseconds = 1000 * 60 * 60 * GM_getValue('tinfoexprhours', 12); //缓存12小时
+    let configExprMilliseconds = 1000 * 60 * 60 * GM_getValue('tinfoexprhours', 24*3); //缓存7天小时
     $(".item").each(function (index, el) {
         submit(function (next) {
             Pace.track(function () {
@@ -218,7 +226,8 @@
                                 l = Math.ceil(l / 5);
                                 return l;
                             })();
-                            var tinfo = { 'thumbup': thumbup, 'thumbdown': thumbdown, 'thumbupRate': thumbupRate, 'age': age, 'label': label, 'indicator': label * thumbupRate, 'favoritesCount': favoritesCount };
+                            var name=jqel.find(".teacher-name").text();
+                            var tinfo = { 'thumbup': thumbup, 'thumbdown': thumbdown, 'thumbupRate': thumbupRate, 'age': age, 'label': label, 'indicator': label * thumbupRate, 'favoritesCount': favoritesCount,'name':name };
                             GM_setValue(tinfoexpirekey, new Date().getTime());
                             GM_setValue(tinfokey, tinfo);
                             updateTeacherinfoToUI(jqel, tinfo);
@@ -252,13 +261,29 @@
         try {
             var config = GM_getValue('filterconfig', { l1: 300, l2: maxlabel, rate1: 96, rate2: 100, age1: 0, age2: 110 });
             $('body').append("<div id='filterdialog' title='Teacher Filter'>"
+                + "<div id='tabs'>"
+                + "<ul>"
+                + '<li><a href="#tabs-1">Search Teachers</a></li>'
+                + '<li><a href="#tabs-2">Sorted Teachers</a></li>'
+                + '</ul>'
+                + '<div id="tabs-1">'
                 + "当前可选<span id='tcount' />位,被折叠<span id='thidecount' />位。 "
-                + "<div id='buttons'><button id='asc' title='当前为降序，点击后按升序排列'>升序</button><button id='desc' title='当前为升序，点击进行降序排列'  style='display:none;'>降序</button>&nbsp;<input id='tinfoexprhours' title='缓存过期时间（小时）'>&nbsp;<button title='清空教师信息缓存，并重新搜索'>清除缓存</button>&nbsp;<a>去提建议和BUG</a>&nbsp;<a>?</a>&nbsp;</div>"
+                + "<div id='buttons'>"
+                + "<button id='asc' title='当前为降序，点击后按升序排列'>升序</button><button id='desc' title='当前为升序，点击进行降序排列'  style='display:none;'>降序</button>&nbsp;<input id='tinfoexprhours' title='缓存过期时间（小时）'>&nbsp;<button title='清空教师信息缓存，并重新搜索'>清除缓存</button>&nbsp;<a>去提建议和BUG</a>&nbsp;<a>?</a>&nbsp;<button>List</button>&nbsp;"
+                + "</div>"
                 + "<br />有效经验值 <span id='_tLabelCount' /><br /><div id='tlabelslider'></div>"
                 + "收藏数 <span id='_tfc' /><br /><div id='fcSlider'></div>"
                 + "好评率 <span id='_thumbupRate'/><br /><div id='thumbupRateslider'></div>"
                 + "年龄 <span id='_tAge' /><br /><div id='tAgeSlider'></div>"
+                + '</div>' // tab 1 end
+                + '<div id="tabs-2">'
+                + '<table id="teachertab"></table>'
+                + '<div id="pager5"></div>'
+                + '</div>' //tab 2 end
+                + "</div>" //tabs end
+
                 + "</div>");
+            $('body').append("<div id='teachlistdialog' style='display:none;'></div>");
             $('body').append("<div id='wwwww'>已加载选课辅助插件。</div>"); //这是一个奇怪的BUG on jqueryui. 如果不多额外添加一个，则dialog无法弹出。
             $("#tlabelslider").slider({
                 range: true,
@@ -372,8 +397,58 @@
                 .prop('target', '_blank')
                 .end().eq(5).button({ icon: 'ui-icon-help', showLabel: false })//系统帮助
                 .prop('href', 'https://github.com/niubilityfrontend/hunttingteacheron51talk/blob/master/README.md')
-                .prop('target', '_blank');
+                .prop('target', '_blank')
+                ;
 
+            $("#tabs").tabs({
+                activate: function (event, ui) {                   
+                    var teachers = [];
+                    $.each(GM_listValues(), function (i, item) {
+                        if (item.startsWith('tinfo-')) {
+                            var t = GM_getValue(item);
+                            t.tid = item.slice(6, item.length);
+                            teachers.push(t);
+                        }
+                    });
+                    teachers=teachers.sort(function (t1, t2) {
+                        if (t1.indicator == t2.indicator)
+                            return t1.favoritesCount > t2.favoritesCount;
+                        return t1.indicator > t2.indicator;
+                    });
+                 
+                     var jqtable = $("#teachertab");
+                    jqtable.jqGrid({
+                        data:teachers,
+                        datatype: "local",
+                        height: 250,
+                        //{ 'thumbup': thumbup, 'thumbdown': thumbdown, 'thumbupRate': thumbupRate, 'age': age, 'label': label, 'indicator': label * thumbupRate, 'favoritesCount': favoritesCount,'name':name }
+                        colNames: ['name', 'indicator', '标签', '好评率', '收藏数', '好评', '差评'],
+                        colModel: [
+                            {
+                                name: 'tid', index: 'tid', width: 60, sorttype: "string",
+                                formatter: function (value, options, rData) {
+                                    return "<a href='http://www.51talk.com/TeacherNew/info/" + value + "' target='_blank'>" + !rData['name']?value:rData['name'] + "</a>";
+                                }
+                            },
+                            { name: 'indicator', index: 'indicator', width: 150, sorttype: "float",align:'right' },
+                            { name: 'label', index: 'label', width: 50,align:'right' },
+                            { name: 'thumbupRate', index: 'thumbupRate', width: 40, align: "right", sorttype: "float" },
+                            { name: 'favoritesCount', index: 'favoritesCount', width: 40, align: "right", sorttype: "float" },
+                            { name: 'thumbup', index: 'thumbup', width: 40, align: "right", sorttype: "float" },
+                            { name: 'thumbdown', index: 'thumbdown', width: 40, sorttype: "float" ,align:'right'}
+                        ],
+                        multiselect: false,
+                        rowNum: 5,
+                        rowList: [10, 20, 30],
+                        pager: '#pager5',
+                        sortname: 'indicator',
+                        viewrecords: true,
+                        sortorder: "desc",
+                        autowidth: true,
+                        caption: "All teachers your searched recently"
+                    });
+                }
+            });
             var uifilters = getUiFilters();
             executeFilters(uifilters);
             $('#_tAge').html(uifilters.age1 + " - " + uifilters.age2);

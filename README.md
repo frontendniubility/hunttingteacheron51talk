@@ -19,6 +19,7 @@
 - 安装油猴浏览器插件后，极力推荐安装一个Userscript+的脚本，他可以根据你浏览的网站，列出所有可以使用的脚本，由你选择安装与否。https://greasyfork.org/zh-CN/scripts/24508-userscript-show-site-all-userjs
 
 ## 更新日志
+- v0.1.28 2019-8-20 - list and sort all teachers your searched recently
 - v0.1.26 2019-8-19 -增加滑块，根据收藏人数过滤教师
 - v0.1.25 2019-8-19 -增加加载时页面顶部的进度条提示
 - v0.1.18 2019-8-15 -清空缓存时仅清空老师信息缓存，增加12小时后教师信息缓存自动失效
