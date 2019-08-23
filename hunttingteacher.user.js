@@ -1,7 +1,7 @@
 
 // ==UserScript==
 // @name         辅助选老师-有效经验值|好评率|年龄|Top 5
-// @version      0.1.29
+// @version      0.1.28
 // @namespace    https://github.com/niubilityfrontend
 // @description  51Talk.辅助选老师-有效经验值|好评率|年龄|Top 5；有效经验值=所有标签数量相加后除以5；好评率=好评数/总评论数；年龄根据你的喜好选择。
 // @author       jimbo
@@ -62,8 +62,8 @@
         + '.pace-inactive {'
         + '  display: none;'
         + '}'
-                     +'.ui-tabs .ui-tabs-panel{padding:.5em 0.2em;}'
-                      +'.ui-dialog .ui-dialog-content {    padding: .5em 0.2em;}'
+        + '.ui-tabs .ui-tabs-panel{padding:.5em 0.2em;}'
+        + '.ui-dialog .ui-dialog-content {    padding: .5em 0.2em;}'
         + ''
         + '.pace .pace-progress {'
         + '  background: #29d;'
@@ -189,7 +189,7 @@
         $('#tcount').text(tcount);
         $('#thidecount').text(hidecount);
     }
-    let configExprMilliseconds = 1000 * 60 * 60 * GM_getValue('tinfoexprhours', 24*3); //缓存7天小时
+    let configExprMilliseconds = 1000 * 60 * 60 * GM_getValue('tinfoexprhours', 24 * 3); //缓存7天小时
     $(".item").each(function (index, el) {
         submit(function (next) {
             Pace.track(function () {
@@ -228,8 +228,8 @@
                                 l = Math.ceil(l / 5);
                                 return l;
                             })();
-                            var name=jqel.find(".teacher-name").text();
-                            var tinfo = { 'thumbup': thumbup, 'thumbdown': thumbdown, 'thumbupRate': thumbupRate, 'age': age, 'label': label, 'indicator': label * thumbupRate, 'favoritesCount': favoritesCount,'name':name };
+                            var name = jqel.find(".teacher-name").text();
+                            var tinfo = { 'thumbup': thumbup, 'thumbdown': thumbdown, 'thumbupRate': thumbupRate, 'age': age, 'label': label, 'indicator': label * thumbupRate, 'favoritesCount': favoritesCount, 'name': name };
                             GM_setValue(tinfoexpirekey, new Date().getTime());
                             GM_setValue(tinfokey, tinfo);
                             updateTeacherinfoToUI(jqel, tinfo);
@@ -271,7 +271,7 @@
                 + '<div id="tabs-1">'
                 + "当前可选<span id='tcount' />位,被折叠<span id='thidecount' />位。 "
                 + "<div id='buttons'>"
-                + "<button id='asc' title='当前为降序，点击后按升序排列'>升序</button><button id='desc' title='当前为升序，点击进行降序排列'  style='display:none;'>降序</button>&nbsp;<input id='tinfoexprhours' title='缓存过期时间（小时）'>&nbsp;<button title='清空教师信息缓存，并重新搜索'>清除缓存</button>&nbsp;<a>去提建议和BUG</a>&nbsp;<a>?</a>&nbsp;<button>List</button>&nbsp;"
+                + "<button id='asc' title='当前为降序，点击后按升序排列'>升序</button><button id='desc' title='当前为升序，点击进行降序排列'  style='display:none;'>降序</button>&nbsp;<input id='tinfoexprhours' title='缓存过期时间（小时）'>&nbsp;<button title='清空教师信息缓存，并重新搜索'>清除缓存</button>&nbsp;<a>去提建议和BUG</a>&nbsp;<a>?</a>&nbsp;<button>自动获取10页</button>&nbsp;"
                 + "</div>"
                 + "<br />有效经验值 <span id='_tLabelCount' /><br /><div id='tlabelslider'></div>"
                 + "收藏数 <span id='_tfc' /><br /><div id='fcSlider'></div>"
@@ -400,6 +400,11 @@
                 .end().eq(5).button({ icon: 'ui-icon-help', showLabel: false })//系统帮助
                 .prop('href', 'https://github.com/niubilityfrontend/hunttingteacheron51talk/blob/master/README.md')
                 .prop('target', '_blank')
+                .end().eq(6).button({ icon: 'ui-icon-seek-next', showLabel: true })//submit suggestion
+                .click(function () {
+                    GM_setValue('autonextpage', 10);
+                    $('.s-t-page .next-page').click();
+                })
                 ;
 
             $("#tabs").tabs({
@@ -412,36 +417,37 @@
                             teachers.push(t);
                         }
                     });
-                    teachers=teachers.sort(function (t1, t2) {
+                    teachers = teachers.sort(function (t1, t2) {
                         if (t1.indicator == t2.indicator)
                             return t1.favoritesCount > t2.favoritesCount;
                         return t1.indicator > t2.indicator;
                     });
 
-                     var jqtable = $("#teachertab");
+                    var jqtable = $("#teachertab");
                     jqtable.jqGrid({
-                        data:teachers,
+                        data: teachers,
                         datatype: "local",
                         height: 240,
                         //{ 'thumbup': thumbup, 'thumbdown': thumbdown, 'thumbupRate': thumbupRate, 'age': age, 'label': label, 'indicator': label * thumbupRate, 'favoritesCount': favoritesCount,'name':name }
-                        colNames: ['name', 'indicator', '标签', '好评率', '收藏数', '好评', '差评'],
+                        colNames: ['name', 'indicator', '标签', '好评率', '收藏数', '好评', '差评', 'age'],
                         colModel: [
                             {
                                 name: 'tid', index: 'tid', width: 130, sorttype: "string",
                                 formatter: function (value, options, rData) {
-                                    return "<a href='http://www.51talk.com/TeacherNew/info/" + value + "' target='_blank'>" + (!rData['name']?value:rData['name']) + "</a>";
+                                    return "<a href='http://www.51talk.com/TeacherNew/info/" + value + "' target='_blank'>" + (!rData['name'] ? value : rData['name']) + "</a>";
                                 }
                             },
-                            { name: 'indicator', index: 'indicator', width: 60, sorttype: "float",align:'right' },
-                            { name: 'label', index: 'label', width: 50,align:'right' },
+                            { name: 'indicator', index: 'indicator', width: 60, sorttype: "float", align: 'right' },
+                            { name: 'label', index: 'label', width: 50, align: 'right' },
                             { name: 'thumbupRate', index: 'thumbupRate', width: 30, align: "right", sorttype: "float" },
                             { name: 'favoritesCount', index: 'favoritesCount', width: 30, align: "right", sorttype: "float" },
                             { name: 'thumbup', index: 'thumbup', width: 35, align: "right", sorttype: "float" },
-                            { name: 'thumbdown', index: 'thumbdown', width: 20, sorttype: "float" ,align:'right'}
+                            { name: 'thumbdown', index: 'thumbdown', width: 20, sorttype: "float", align: 'right' },
+                            { name: 'age', index: 'age', width: 15, sorttype: "float", align: 'right' },
                         ],
                         multiselect: false,
                         rowNum: 10,
-                        rowList: [5,10, 20, 30],
+                        rowList: [5, 10, 20, 30],
                         pager: '#pager5',
                         sortname: 'indicator',
                         viewrecords: true,
@@ -468,6 +474,11 @@
         $('#filterdialog').dialog({ 'width': '420px' });
         $('#filterdialog').parent().scrollFix();
         $('#filterdialog').dialog("open");
+        var autonextpage = GM_getValue('autonextpage', 10);
+        if (autonextpage > 0) {
+            GM_setValue('autonextpage', autonextpage - 1);
+            $('.s-t-page .next-page').click();
+        }
         next();
     });
 })();
