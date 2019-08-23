@@ -1,7 +1,7 @@
 
 // ==UserScript==
 // @name         辅助选老师-有效经验值|好评率|年龄|Top 5
-// @version      0.1.28
+// @version      0.1.29
 // @namespace    https://github.com/niubilityfrontend
 // @description  51Talk.辅助选老师-有效经验值|好评率|年龄|Top 5；有效经验值=所有标签数量相加后除以5；好评率=好评数/总评论数；年龄根据你的喜好选择。
 // @author       jimbo
@@ -62,6 +62,8 @@
         + '.pace-inactive {'
         + '  display: none;'
         + '}'
+                     +'.ui-tabs .ui-tabs-panel{padding:.5em 0.2em;}'
+                      +'.ui-dialog .ui-dialog-content {    padding: .5em 0.2em;}'
         + ''
         + '.pace .pace-progress {'
         + '  background: #29d;'
@@ -401,7 +403,7 @@
                 ;
 
             $("#tabs").tabs({
-                activate: function (event, ui) {                   
+                activate: function (event, ui) {
                     var teachers = [];
                     $.each(GM_listValues(), function (i, item) {
                         if (item.startsWith('tinfo-')) {
@@ -415,36 +417,36 @@
                             return t1.favoritesCount > t2.favoritesCount;
                         return t1.indicator > t2.indicator;
                     });
-                 
+
                      var jqtable = $("#teachertab");
                     jqtable.jqGrid({
                         data:teachers,
                         datatype: "local",
-                        height: 250,
+                        height: 240,
                         //{ 'thumbup': thumbup, 'thumbdown': thumbdown, 'thumbupRate': thumbupRate, 'age': age, 'label': label, 'indicator': label * thumbupRate, 'favoritesCount': favoritesCount,'name':name }
                         colNames: ['name', 'indicator', '标签', '好评率', '收藏数', '好评', '差评'],
                         colModel: [
                             {
-                                name: 'tid', index: 'tid', width: 60, sorttype: "string",
+                                name: 'tid', index: 'tid', width: 130, sorttype: "string",
                                 formatter: function (value, options, rData) {
-                                    return "<a href='http://www.51talk.com/TeacherNew/info/" + value + "' target='_blank'>" + !rData['name']?value:rData['name'] + "</a>";
+                                    return "<a href='http://www.51talk.com/TeacherNew/info/" + value + "' target='_blank'>" + (!rData['name']?value:rData['name']) + "</a>";
                                 }
                             },
-                            { name: 'indicator', index: 'indicator', width: 150, sorttype: "float",align:'right' },
+                            { name: 'indicator', index: 'indicator', width: 60, sorttype: "float",align:'right' },
                             { name: 'label', index: 'label', width: 50,align:'right' },
-                            { name: 'thumbupRate', index: 'thumbupRate', width: 40, align: "right", sorttype: "float" },
-                            { name: 'favoritesCount', index: 'favoritesCount', width: 40, align: "right", sorttype: "float" },
-                            { name: 'thumbup', index: 'thumbup', width: 40, align: "right", sorttype: "float" },
-                            { name: 'thumbdown', index: 'thumbdown', width: 40, sorttype: "float" ,align:'right'}
+                            { name: 'thumbupRate', index: 'thumbupRate', width: 30, align: "right", sorttype: "float" },
+                            { name: 'favoritesCount', index: 'favoritesCount', width: 30, align: "right", sorttype: "float" },
+                            { name: 'thumbup', index: 'thumbup', width: 35, align: "right", sorttype: "float" },
+                            { name: 'thumbdown', index: 'thumbdown', width: 20, sorttype: "float" ,align:'right'}
                         ],
                         multiselect: false,
-                        rowNum: 5,
-                        rowList: [10, 20, 30],
+                        rowNum: 10,
+                        rowList: [5,10, 20, 30],
                         pager: '#pager5',
                         sortname: 'indicator',
                         viewrecords: true,
                         sortorder: "desc",
-                        autowidth: true,
+                        //autowidth: true,
                         caption: "All teachers your searched recently"
                     });
                 }
