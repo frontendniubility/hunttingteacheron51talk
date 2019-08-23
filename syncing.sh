@@ -1,5 +1,5 @@
 
 git pull
 git add *
-git commit -m "automate commit"
+git commit -m 
 git push -u origin master
