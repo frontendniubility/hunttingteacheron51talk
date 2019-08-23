@@ -463,7 +463,7 @@
     submit(function (next) {
         $('.s-t-list').before($(".s-t-page").prop('outerHTML'));
         sortByIndicator(desc);
-        $('#filterdialog').dialog({ 'width': '360px' });
+        $('#filterdialog').dialog({ 'width': '420px' });
         $('#filterdialog').parent().scrollFix();
         $('#filterdialog').dialog("open");
         next();
