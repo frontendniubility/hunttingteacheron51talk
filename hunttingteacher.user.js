@@ -1,9 +1,9 @@
 
 // ==UserScript==
 // @name         辅助选老师-有效经验值|好评率|年龄|Top 5
-// @version      0.1.29
+// @version      0.1.30
 // @namespace    https://github.com/niubilityfrontend
-// @description  51Talk.辅助选老师-有效经验值|好评率|年龄|Top 5；有效经验值=所有标签数量相加后除以5；好评率=好评数/总评论数；年龄根据你的喜好选择。
+// @description  51Talk.辅助选老师-有效经验值|好评率|年龄|Top 5；有效经验值=所有标签数量相加后除以5；好评率=好评数/总评论数；年龄根据你的喜好选择。更多说明请移步说明页面
 // @author       jimbo
 // @license      GPLv3
 // @supportURL   https://github.com/niubilityfrontend/hunttingteacheron51talk
@@ -403,7 +403,11 @@
                 .end().eq(6).button({ icon: 'ui-icon-seek-next', showLabel: true })//submit suggestion
                 .click(function () {
                     GM_setValue('autonextpage', 10);
-                    $('.s-t-page .next-page')[0].click();
+                    if ($('.s-t-page .next-page').length == 0) {
+                        GM_setValue('autonextpage', 0);
+                    }else{
+                        $('.s-t-page .next-page')[0].click();
+                    }
                 })
                 ;
 
@@ -477,7 +481,11 @@
         var autonextpage = GM_getValue('autonextpage', 0);
         if (autonextpage > 0) {
             GM_setValue('autonextpage', autonextpage - 1);
-            $('.s-t-page .next-page')[0].click();
+            if ($('.s-t-page .next-page').length == 0) {
+                GM_setValue('autonextpage', 0);
+            }else{
+                $('.s-t-page .next-page')[0].click();
+            }
         }
         next();
     });
