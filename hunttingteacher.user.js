@@ -3,7 +3,7 @@
 // @name         辅助选老师-有效经验值|好评率|年龄|Top 5
 // @version      0.1.30
 // @namespace    https://github.com/niubilityfrontend
-// @description  51Talk.辅助选老师-有效经验值|好评率|年龄|Top 5；有效经验值=所有标签数量相加后除以5；好评率=好评数/总评论数；年龄根据你的喜好选择。更多说明请移步说明页面
+// @description  51Talk.辅助选老师-有效经验值|好评率|年龄|Top 5；有效经验值=所有标签数量相加后除以5；好评率=好评数/总评论数；年龄根据你的喜好选择。
 // @author       jimbo
 // @license      GPLv3
 // @supportURL   https://github.com/niubilityfrontend/hunttingteacheron51talk
@@ -229,7 +229,7 @@
                                 return l;
                             })();
                             var name = jqel.find(".teacher-name").text();
-                            var tinfo = { 'thumbup': thumbup, 'thumbdown': thumbdown, 'thumbupRate': thumbupRate, 'age': age, 'label': label, 'indicator': label * thumbupRate, 'favoritesCount': favoritesCount, 'name': name };
+                            var tinfo = { 'thumbup': thumbup, 'thumbdown': thumbdown, 'thumbupRate': thumbupRate, 'age': age, 'label': label, 'indicator': Math.ceil(label * thumbupRate/100)+favoritesCount, 'favoritesCount': favoritesCount, 'name': name };
                             GM_setValue(tinfoexpirekey, new Date().getTime());
                             GM_setValue(tinfokey, tinfo);
                             updateTeacherinfoToUI(jqel, tinfo);
