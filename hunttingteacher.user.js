@@ -1,7 +1,7 @@
 
 // ==UserScript==
 // @name         辅助选老师-有效经验值|好评率|年龄|Top 5
-// @version      0.1.28
+// @version      0.1.29
 // @namespace    https://github.com/niubilityfrontend
 // @description  51Talk.辅助选老师-有效经验值|好评率|年龄|Top 5；有效经验值=所有标签数量相加后除以5；好评率=好评数/总评论数；年龄根据你的喜好选择。
 // @author       jimbo
@@ -271,7 +271,7 @@
                 + '<div id="tabs-1">'
                 + "当前可选<span id='tcount' />位,被折叠<span id='thidecount' />位。 "
                 + "<div id='buttons'>"
-                + "<button id='asc' title='当前为降序，点击后按升序排列'>升序</button><button id='desc' title='当前为升序，点击进行降序排列'  style='display:none;'>降序</button>&nbsp;<input id='tinfoexprhours' title='缓存过期时间（小时）'>&nbsp;<button title='清空教师信息缓存，并重新搜索'>清除缓存</button>&nbsp;<a>去提建议和BUG</a>&nbsp;<a>?</a>&nbsp;<button>自动获取10页</button>&nbsp;"
+                + "<button id='asc' title='当前为降序，点击后按升序排列'>升序</button><button id='desc' title='当前为升序，点击进行降序排列'  style='display:none;'>降序</button>&nbsp;<input id='tinfoexprhours' title='缓存过期时间（小时）'>&nbsp;<button title='清空教师信息缓存，并重新搜索'>清除缓存</button>&nbsp;<a>去提建议和BUG</a>&nbsp;<a>?</a>&nbsp;<button id='auotonextpage'>自动获取10页</button>&nbsp;"
                 + "</div>"
                 + "<br />有效经验值 <span id='_tLabelCount' /><br /><div id='tlabelslider'></div>"
                 + "收藏数 <span id='_tfc' /><br /><div id='fcSlider'></div>"
@@ -403,7 +403,7 @@
                 .end().eq(6).button({ icon: 'ui-icon-seek-next', showLabel: true })//submit suggestion
                 .click(function () {
                     GM_setValue('autonextpage', 10);
-                    $('.s-t-page .next-page').click();
+                    $('.s-t-page .next-page')[0].click();
                 })
                 ;
 
@@ -471,13 +471,13 @@
     submit(function (next) {
         $('.s-t-list').before($(".s-t-page").prop('outerHTML'));
         sortByIndicator(desc);
-        $('#filterdialog').dialog({ 'width': '420px' });
+        $('#filterdialog').dialog({ 'width': '425px' });
         $('#filterdialog').parent().scrollFix();
         $('#filterdialog').dialog("open");
-        var autonextpage = GM_getValue('autonextpage', 10);
+        var autonextpage = GM_getValue('autonextpage', 0);
         if (autonextpage > 0) {
             GM_setValue('autonextpage', autonextpage - 1);
-            $('.s-t-page .next-page').click();
+            $('.s-t-page .next-page')[0].click();
         }
         next();
     });
