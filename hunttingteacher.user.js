@@ -1,7 +1,7 @@
 
 // ==UserScript==
 // @name         辅助选老师-有效经验值|好评率|年龄|Top 5
-// @version      0.1.32
+// @version      0.1.33
 // @namespace    https://github.com/niubilityfrontend
 // @description  51Talk.辅助选老师-有效经验值|好评率|年龄|Top 5；有效经验值=所有标签数量相加后除以5；好评率=好评数/总评论数；年龄根据你的喜好选择。
 // @author       jimbo
@@ -18,8 +18,8 @@
 // @require      http://code.jquery.com/jquery-3.4.1.min.js
 // @require      https://code.jquery.com/ui/1.12.1/jquery-ui.min.js
 // @require      https://cdnjs.cloudflare.com/ajax/libs/pace/1.0.2/pace.min.js
-// @require      https://cdnjs.cloudflare.com/ajax/libs/jqgrid/4.6.0/js/i18n/grid.locale-cn.js
-// @require      https://cdnjs.cloudflare.com/ajax/libs/jqgrid/4.6.0/js/jquery.jqGrid.min.js
+// @require      https://cdnjs.cloudflare.com/ajax/libs/free-jqgrid/4.15.5/i18n/grid.locale-cn.js
+// @require      https://cdnjs.cloudflare.com/ajax/libs/free-jqgrid/4.15.5/jquery.jqgrid.min.js
 // @require      https://greasyfork.org/scripts/388372-scrollfix/code/scrollfix.js?version=726657
 // ==/UserScript==
 (function () {
@@ -39,7 +39,7 @@
     );
     $("head").append(
         '<link '
-        + 'href="https://cdnjs.cloudflare.com/ajax/libs/jqgrid/4.6.0/css/ui.jqgrid.css" '
+        + 'href="https://cdnjs.cloudflare.com/ajax/libs/free-jqgrid/4.15.5/css/ui.jqgrid.min.css" '
         + 'rel="stylesheet" type="text/css">'
     );
 
@@ -127,6 +127,11 @@
         var sortEle = $('.s-t-content.f-cb .item').sort(sortBy);
         $('.s-t-content.f-cb').empty().append(sortEle);
     };
+    function getUrlParam(name) {
+        var reg = new RegExp("(^|&)" + name + "=([^&]*)(&|$)");
+        var r = window.location.search.substr(1).match(reg);
+        if (r != null) return unescape(r[2]); return null;
+    }
     /**
      * 提交运算函数到 document 的 fx 队列
      */
@@ -214,11 +219,12 @@
                     type: 'GET',
                     dateType: 'html',
                     success: function (r) {
-                        if ($(".evaluate-content-left span", r) && $(".evaluate-content-left span", r).length >= 3) {
-                            var thumbup = Number($(".evaluate-content-left span:eq(1)", r).text().match(num).clean("")[0]);
-                            var thumbdown = Number($(".evaluate-content-left span:eq(2)", r).text().match(num).clean("")[0]);
+                        var jqr = $(r);
+                        if (jqr.find(".evaluate-content-left span").length >= 3) {
+                            var thumbup = Number(jqr.find(".evaluate-content-left span:eq(1)").text().match(num).clean("")[0]);
+                            var thumbdown = Number(jqr.find(".evaluate-content-left span:eq(2)").text().match(num).clean("")[0]);
                             var thumbupRate = ((thumbup + 0.00001) / (thumbdown + thumbup)).toFixed(2) * 100;
-                            var favoritesCount = Number($(".clear-search", r).text().match(num).clean("")[0]);
+                            var favoritesCount = Number(jqr.find(".clear-search").text().match(num).clean("")[0]);
                             var age = jqel.find(".teacher-age").text().match(num).clean("")[0];
                             var label = (function () {
                                 let j_len = jqel.find(".label").text().match(num).clean("").length; let l = 0;
@@ -229,7 +235,10 @@
                                 return l;
                             })();
                             var name = jqel.find(".teacher-name").text();
-                            var tinfo = { 'thumbup': thumbup, 'thumbdown': thumbdown, 'thumbupRate': thumbupRate, 'age': age, 'label': label, 'indicator': Math.ceil(label * thumbupRate / 100) + favoritesCount, 'favoritesCount': favoritesCount, 'name': name };
+                            var type = $('.s-t-top-list .li-active').text();
+                            var tage = Number(jqr.find(".teacher-name-tit > .age.age-line").text().match(num).clean("")[0]);
+                            var slevel = jqr.find('.sui-students').text();
+                            var tinfo = { 'slevel': slevel, 'tage': tage, 'thumbup': thumbup, 'thumbdown': thumbdown, 'thumbupRate': thumbupRate, 'age': age, 'label': label, 'indicator': Math.ceil(label * thumbupRate / 100) + favoritesCount, 'favoritesCount': favoritesCount, 'name': name, 'type': type };
                             GM_setValue(tinfoexpirekey, new Date().getTime());
                             GM_setValue(tinfokey, tinfo);
                             updateTeacherinfoToUI(jqel, tinfo);
@@ -433,21 +442,32 @@
                         datatype: "local",
                         height: 240,
                         //{ 'thumbup': thumbup, 'thumbdown': thumbdown, 'thumbupRate': thumbupRate, 'age': age, 'label': label, 'indicator': label * thumbupRate, 'favoritesCount': favoritesCount,'name':name }
-                        colNames: ['name', 'indicator', '标签', '好评率', '收藏数', '好评', '差评', 'age'],
+                        colNames: ['type', 'name', 'indicator', '标签', '率', '收藏数', '学', '教', '好', '差', 'age'],
                         colModel: [
+                            //searchoptions:{sopt:['eq','ne','le','lt','gt','ge','bw','bn','cn','nc','ew','en']}
                             {
-                                name: 'tid', index: 'tid', width: 130, sorttype: "string",
+                                name: 'type', index: 'type', width: 49, sorttype: "string", align: 'left', searchoptions: { sopt: ['cn'] },
+                                formatter: function (value, options, rData) {
+                                    if (value)
+                                        return value;
+                                    else return 'na';
+                                }
+                            },
+                            {
+                                name: 'tid', index: 'tid', width: 95, sorttype: "string",
                                 formatter: function (value, options, rData) {
                                     return "<a href='http://www.51talk.com/TeacherNew/info/" + value + "' target='_blank'>" + (!rData['name'] ? value : rData['name']) + "</a>";
                                 }
                             },
-                            { name: 'indicator', index: 'indicator', width: 60, sorttype: "float", align: 'right' },
-                            { name: 'label', index: 'label', width: 50, align: 'right' },
-                            { name: 'thumbupRate', index: 'thumbupRate', width: 30, align: "right", sorttype: "float" },
-                            { name: 'favoritesCount', index: 'favoritesCount', width: 30, align: "right", sorttype: "float" },
-                            { name: 'thumbup', index: 'thumbup', width: 35, align: "right", sorttype: "float" },
+                            { name: 'indicator', index: 'indicator', width: 35, sorttype: "float", align: 'right', searchoptions: { sopt: ['ge'] }, },
+                            { name: 'label', index: 'label', width: 50, align: 'right', searchoptions: { sopt: ['ge'] }, },
+                            { name: 'thumbupRate', index: 'thumbupRate', width: 30, align: "right", sorttype: "float", searchoptions: { sopt: ['ge'] }, },
+                            { name: 'favoritesCount', index: 'favoritesCount', width: 30, align: "right", sorttype: "float", searchoptions: { sopt: ['ge'] }, },
+                            { name: 'slevel', index: 'slevel', width: 55, sorttype: "string", align: 'left', searchoptions: { sopt: ['cn', 'nc'] }, },
+                            { name: 'tage', index: 'tage', width: 25, sorttype: "float", align: 'right', searchoptions: { sopt: ['ge'] }, },
+                            { name: 'thumbup', index: 'thumbup', width: 25, align: "right", sorttype: "float", searchoptions: { sopt: ['ge'] }, },
                             { name: 'thumbdown', index: 'thumbdown', width: 20, sorttype: "float", align: 'right' },
-                            { name: 'age', index: 'age', width: 15, sorttype: "float", align: 'right' },
+                            { name: 'age', index: 'age', width: 20, sorttype: "float", align: 'right', searchoptions: { sopt: ['le', 'ge', 'eq',] }, },
                         ],
                         multiselect: false,
                         rowNum: 10,
@@ -456,9 +476,20 @@
                         sortname: 'indicator',
                         viewrecords: true,
                         sortorder: "desc",
-                        //autowidth: true,
-                        caption: "All teachers your searched recently"
-                    });
+                        grouping: false,
+                        groupingView: {
+                            groupField: ['type'],//分组属性
+                            groupColumnShow: [true],//是否显示分组列
+                            groupText: ['<b>{0} - {1} 条记录</b>'],//表头显示数据(每组中包含的数据量)
+                            groupCollapse: true,//加载数据时是否只显示分组的组信息
+                            groupSummary: [false],//是否显示汇总  如果为true需要在colModel中进行配置summaryType:'max',summaryTpl:'<b>Max: {0}</b>'
+                            groupDataSorted: true,//分组中的数据是否排序
+                            groupOrder: ['desc'], //分组后组的排列顺序
+                            //showSummaryOnHide: true//是否在分组底部显示汇总信息并且当收起表格时是否隐藏下面的分组
+                        },
+                        autowidth: true,
+                        caption: ""
+                    }).jqGrid('filterToolbar', { searchOperators: true });
                 }
             });
             var uifilters = getUiFilters();
@@ -475,7 +506,7 @@
     submit(function (next) {
         $('.s-t-list').before($(".s-t-page").prop('outerHTML'));
         sortByIndicator(desc);
-        $('#filterdialog').dialog({ 'width': '425px' });
+        $('#filterdialog').dialog({ 'width': '480' });
         $('#filterdialog').parent().scrollFix();
         $('#filterdialog').dialog("open");
         var autonextpage = GM_getValue('autonextpage', 0);
