@@ -1,7 +1,7 @@
 
 // ==UserScript==
 // @name         辅助选老师-有效经验值|好评率|年龄|Top 5
-// @version      0.1.31
+// @version      0.1.32
 // @namespace    https://github.com/niubilityfrontend
 // @description  51Talk.辅助选老师-有效经验值|好评率|年龄|Top 5；有效经验值=所有标签数量相加后除以5；好评率=好评数/总评论数；年龄根据你的喜好选择。
 // @author       jimbo
@@ -145,9 +145,9 @@
         minfc = (tinfo.favoritesCount < minfc) ? tinfo.favoritesCount : minfc;
         jqel.attr("teacherinfo", JSON.stringify(tinfo));
         jqel.find(".teacher-name")
-            .html(jqel.find(".teacher-name").text() + "<br />[" + tinfo.label + "x" + tinfo.thumbupRate + "%=" + tinfo.indicator + "]");
+            .html(jqel.find(".teacher-name").text() + "<br />[" + tinfo.label + "|" + tinfo.thumbupRate + "%|" + tinfo.favoritesCount + "]");
         jqel.find(".teacher-age")
-            .html(jqel.find(".teacher-age").text() + " | <label title='被收藏数'>" + tinfo.favoritesCount + "</label>");
+            .html(jqel.find(".teacher-age").text() + " | <label title='排序指标'>" + tinfo.indicator + "</label>");
 
         jqel//.attr('thumbup', tinfo.thumbup)
             //.attr('thumbdown', tinfo.thumbdown)
@@ -229,7 +229,7 @@
                                 return l;
                             })();
                             var name = jqel.find(".teacher-name").text();
-                            var tinfo = { 'thumbup': thumbup, 'thumbdown': thumbdown, 'thumbupRate': thumbupRate, 'age': age, 'label': label, 'indicator': Math.ceil(label * thumbupRate/100)+favoritesCount, 'favoritesCount': favoritesCount, 'name': name };
+                            var tinfo = { 'thumbup': thumbup, 'thumbdown': thumbdown, 'thumbupRate': thumbupRate, 'age': age, 'label': label, 'indicator': Math.ceil(label * thumbupRate / 100) + favoritesCount, 'favoritesCount': favoritesCount, 'name': name };
                             GM_setValue(tinfoexpirekey, new Date().getTime());
                             GM_setValue(tinfokey, tinfo);
                             updateTeacherinfoToUI(jqel, tinfo);
@@ -405,7 +405,7 @@
                     GM_setValue('autonextpage', 10);
                     if ($('.s-t-page .next-page').length == 0) {
                         GM_setValue('autonextpage', 0);
-                    }else{
+                    } else {
                         $('.s-t-page .next-page')[0].click();
                     }
                 })
@@ -483,7 +483,7 @@
             GM_setValue('autonextpage', autonextpage - 1);
             if ($('.s-t-page .next-page').length == 0) {
                 GM_setValue('autonextpage', 0);
-            }else{
+            } else {
                 $('.s-t-page .next-page')[0].click();
             }
         }
