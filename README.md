@@ -62,4 +62,4 @@
 
 当然，很多学习英语的同学并不会使用油猴插件，请自己搜索学习，安装插件后首推安装“Userscript+ : 显示当前网站所有可用的UserJS脚本 Jaeger”脚本。它可以自动推荐适合当前网站的脚本供你选择。
 
-如有有任何建议，请发送email到 jingjingdouzi@gmail.com
+如有有任何建议，请发送email到 happycoder@foxmail.com
