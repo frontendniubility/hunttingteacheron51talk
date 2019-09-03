@@ -1,3 +1,5 @@
+# Migrated to  https://github.com/niubilityfrontend/userscripts/tree/master/hunttingteacheron51talk
+
 # 51Talk.辅助选老师-有效经验值|好评率|年龄|Top 5
 ## 功能 What
 ![instructions](Instructions.png)
